@@ -32,6 +32,7 @@ function buildUrl(base: string, path: string, slug: string | null, override: boo
 }
 
 const DEFAULT_TIMEOUT_MS = 5000;
+const IS_DEV = process.env.NODE_ENV !== "production";
 
 async function request<T>(path: string, opts: { revalidate?: number; extra?: Record<string, string | number>; timeoutMs?: number } = {}): Promise<T> {
   const { url, slug, override } = await resolveBase();
@@ -40,7 +41,8 @@ async function request<T>(path: string, opts: { revalidate?: number; extra?: Rec
   try {
     res = await fetch(full, {
       headers: { Accept: "application/json" },
-      next: { revalidate: opts.revalidate ?? 60 },
+      cache: IS_DEV ? "no-store" : undefined,
+      next: IS_DEV ? undefined : { revalidate: opts.revalidate ?? 60 },
       signal: AbortSignal.timeout(opts.timeoutMs ?? DEFAULT_TIMEOUT_MS),
     });
   } catch (err) {
