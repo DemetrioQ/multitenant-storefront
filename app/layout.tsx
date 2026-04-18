@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { Geist, Geist_Mono } from "next/font/google";
 import { headers } from "next/headers";
 import { getStore } from "@/lib/api";
 import { extractSlugFromHost } from "@/lib/config";
 import { ApiError } from "@/lib/types";
+import { AuthProvider } from "@/contexts/AuthContext";
+import { Header } from "@/components/Header";
 import "./globals.css";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
@@ -42,41 +43,34 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const store = await loadStore();
+  const storeName = store?.name ?? "Store";
 
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col">
-        <header className="border-b border-[var(--border)]">
-          <div className="mx-auto max-w-6xl flex items-center justify-between px-6 py-4">
-            <Link href="/" className="text-lg font-semibold tracking-tight">
-              {store?.name ?? "Store"}
-            </Link>
-            <nav className="flex gap-6 text-sm">
-              <Link href="/" className="hover:underline">Home</Link>
-              <Link href="/products" className="hover:underline">Products</Link>
-            </nav>
-          </div>
-        </header>
-        <main className="flex-1">{children}</main>
-        <footer className="border-t border-[var(--border)] mt-16">
-          <div className="mx-auto max-w-6xl px-6 py-8 text-sm text-[var(--muted)] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-            <span>© {new Date().getFullYear()} {store?.name ?? "Store"}</span>
-            {store && (
-              <div className="flex gap-4">
-                {store.supportEmail && (
-                  <a href={`mailto:${store.supportEmail}`} className="hover:underline">
-                    {store.supportEmail}
-                  </a>
-                )}
-                {store.websiteUrl && (
-                  <a href={store.websiteUrl} target="_blank" rel="noreferrer" className="hover:underline">
-                    Website
-                  </a>
-                )}
-              </div>
-            )}
-          </div>
-        </footer>
+        <AuthProvider>
+          <Header storeName={storeName} />
+          <main className="flex-1">{children}</main>
+          <footer className="border-t border-[var(--border)] mt-16">
+            <div className="mx-auto max-w-6xl px-6 py-8 text-sm text-[var(--muted)] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+              <span>© {new Date().getFullYear()} {storeName}</span>
+              {store && (
+                <div className="flex gap-4">
+                  {store.supportEmail && (
+                    <a href={`mailto:${store.supportEmail}`} className="hover:underline">
+                      {store.supportEmail}
+                    </a>
+                  )}
+                  {store.websiteUrl && (
+                    <a href={store.websiteUrl} target="_blank" rel="noreferrer" className="hover:underline">
+                      Website
+                    </a>
+                  )}
+                </div>
+              )}
+            </div>
+          </footer>
+        </AuthProvider>
       </body>
     </html>
   );

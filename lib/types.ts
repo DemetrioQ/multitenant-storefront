@@ -40,3 +40,29 @@ export class ApiError extends Error {
     this.problem = problem;
   }
 }
+
+export type LoginResponse = {
+  jwtToken: string;
+  expiresAt: string;
+};
+
+export type RegisterResponse = {
+  customerId: string;
+};
+
+export type VerifyEmailResponse = {
+  message: string;
+};
+
+export type EmailNotVerifiedProblem = ApiProblemDetails & {
+  errorCode?: "EMAIL_NOT_VERIFIED";
+  canResendAt?: string;
+};
+
+export type CustomerClaims = {
+  sub: string;
+  tenant_id: string;
+  sub_type: "customer" | "merchant";
+  email: string;
+  exp: number;
+};
