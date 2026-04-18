@@ -123,9 +123,11 @@ function CartLine({
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
+  const [lastSynced, setLastSynced] = useState(item.quantity);
+  if (lastSynced !== item.quantity) {
+    setLastSynced(item.quantity);
     setQuantity(item.quantity);
-  }, [item.quantity]);
+  }
 
   const commit = async (next: number) => {
     if (next === item.quantity) return;

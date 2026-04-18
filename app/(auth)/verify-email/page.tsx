@@ -14,13 +14,12 @@ type State =
 export default function VerifyEmailPage() {
   const params = useSearchParams();
   const token = params.get("token");
-  const [state, setState] = useState<State>({ kind: "verifying" });
+  const [state, setState] = useState<State>(() =>
+    token ? { kind: "verifying" } : { kind: "error", message: "Missing verification token." }
+  );
 
   useEffect(() => {
-    if (!token) {
-      setState({ kind: "error", message: "Missing verification token." });
-      return;
-    }
+    if (!token) return;
     let cancelled = false;
     (async () => {
       try {

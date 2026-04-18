@@ -42,7 +42,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (authStatus === "authenticated") {
-      refresh();
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      void refresh();
     } else if (authStatus === "anonymous") {
       setState({ status: "idle", cart: null, error: null });
     }
