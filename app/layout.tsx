@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Geist, Geist_Mono } from "next/font/google";
+import { headers } from "next/headers";
 import { getStore } from "@/lib/api";
+import { extractSlugFromHost } from "@/lib/config";
 import { ApiError } from "@/lib/types";
 import "./globals.css";
 
@@ -9,6 +11,8 @@ const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
 async function loadStore() {
+  const h = await headers();
+  if (!extractSlugFromHost(h.get("host"))) return null;
   try {
     return await getStore();
   } catch (err) {
