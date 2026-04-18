@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { headers } from "next/headers";
-import { cache } from "react";
 import { getStore } from "@/lib/api";
 import { extractSlugFromHost, getBareHostUrl, isBareHost } from "@/lib/config";
 import { ApiError, type ApiStore } from "@/lib/types";
@@ -23,7 +22,7 @@ type StoreState =
   | { kind: "unavailable"; message: string }
   | { kind: "not-a-store" };
 
-const loadStoreState = cache(async (): Promise<StoreState> => {
+async function loadStoreState(): Promise<StoreState> {
   const h = await headers();
   if (!extractSlugFromHost(h.get("host"))) return { kind: "not-a-store" };
   try {
@@ -34,7 +33,7 @@ const loadStoreState = cache(async (): Promise<StoreState> => {
     const message = err instanceof Error ? err.message : "Backend unreachable";
     return { kind: "unavailable", message };
   }
-});
+}
 
 export async function generateMetadata(): Promise<Metadata> {
   const h = await headers();
