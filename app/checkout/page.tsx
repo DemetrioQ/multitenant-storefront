@@ -56,17 +56,15 @@ export default function CheckoutPage() {
         router.replace(`/orders/${order.id}`);
       } else {
         const origin = window.location.origin;
+        // The backend substitutes {ORDER_ID} / {ORDER_NUMBER} in both URLs
+        // before handing them to Stripe (or the simulation provider), so we
+        // don't have to know the id upfront.
         const session = await createCheckoutSession({
           shippingAddress: shipping,
           billingAddress: useSameAddress ? null : billing,
           successUrl: `${origin}/checkout/success?order={ORDER_ID}`,
-          cancelUrl: `${origin}/checkout/cancel`,
+          cancelUrl: `${origin}/checkout/cancel?order={ORDER_ID}`,
         });
-        // Replace {ORDER_ID} ourselves in case the payment provider doesn't
-        const successUrl = `${origin}/checkout/success?order=${session.orderId}`;
-        // Some providers echo successUrl as-is; for simulation the backend redirects to our literal string.
-        // Store a marker so /checkout/success knows which order to poll.
-        sessionStorage.setItem("storefront:last-checkout", JSON.stringify({ orderId: session.orderId, successUrl }));
         window.location.assign(session.paymentUrl);
       }
     } catch (err) {

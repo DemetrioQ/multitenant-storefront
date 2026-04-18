@@ -20,7 +20,9 @@ const MAX_ATTEMPTS = 40;
 
 export default function CheckoutSuccessPage() {
   const params = useSearchParams();
-  const orderId = params.get("order") ?? readStoredOrderId();
+  // Backend substitutes {ORDER_ID} in successUrl before redirecting the user
+  // back from the payment provider, so `?order=<guid>` is always populated.
+  const orderId = params.get("order");
   const { refresh: refreshCart } = useCart();
   const currency = useCurrency();
   const [state, setState] = useState<State>(() =>
@@ -45,7 +47,6 @@ export default function CheckoutSuccessPage() {
         }
         setState({ kind: "ready", order });
         refreshCart();
-        sessionStorage.removeItem("storefront:last-checkout");
       } catch (err) {
         if (cancelled) return;
         if (err instanceof ApiError && err.status === 404) {
@@ -138,15 +139,4 @@ export default function CheckoutSuccessPage() {
       </div>
     </div>
   );
-}
-
-function readStoredOrderId(): string | null {
-  try {
-    const raw = sessionStorage.getItem("storefront:last-checkout");
-    if (!raw) return null;
-    const data = JSON.parse(raw) as { orderId?: string };
-    return data.orderId ?? null;
-  } catch {
-    return null;
-  }
 }
