@@ -7,7 +7,7 @@ type Props = {
 export function StoreUnavailableScreen({ mode, message, bareHostUrl }: Props) {
   const isNotFound = mode === "notfound";
   return (
-    <div className="flex min-h-[70vh] items-center justify-center px-6 py-16">
+    <div className="flex min-h-[70vh] w-full items-center justify-center px-6 py-16">
       <div className="max-w-lg text-center">
         <p className="text-xs uppercase tracking-widest text-[var(--muted)]">
           {isNotFound ? "Store not available" : "Temporarily unavailable"}
