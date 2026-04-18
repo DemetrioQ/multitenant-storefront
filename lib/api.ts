@@ -71,32 +71,43 @@ async function request<T>(path: string, opts: { revalidate?: number; extra?: Rec
   return (await res.json()) as T;
 }
 
-// Process-wide TTL cache for /store. Reason: Next.js Link prefetch + real
-// navigation each do a separate SSR render, and Next's data cache doesn't
-// hold error responses — so an invalid tenant would hit /store twice every
-// time someone clicked around. React cache() doesn't help (per-render only).
-// We cache the Promise itself so both successes and rejections dedupe for
-// the TTL window, keyed by the tenant slug to prevent cross-tenant leaks.
+// Process-wide TTL cache for /store. Next's Link prefetch + real navigation
+// each do a separate SSR render, and Next's data cache doesn't hold error
+// responses — so an invalid tenant would hit /store twice every click.
+// Asymmetric TTL: successes stay cached just long enough to absorb
+// prefetch→click (2s, below human reaction time for dashboard edit → F5, so
+// edits still feel instant); failures stay cached longer (30s) so a
+// known-bad subdomain doesn't keep hitting the backend.
 type StoreCacheEntry = { promise: Promise<ApiStore>; expires: number };
-const STORE_CACHE_TTL_MS = 10_000;
+const STORE_SUCCESS_TTL_MS = 2_000;
+const STORE_ERROR_TTL_MS = 30_000;
 const storeCache = new Map<string, StoreCacheEntry>();
 
 export async function getStore(): Promise<ApiStore> {
   const h = await headers();
   const slug = extractSlugFromHost(h.get("host")) ?? "__no_slug__";
   const now = Date.now();
-  const entry = storeCache.get(slug);
-  if (entry && entry.expires > now) return entry.promise;
+  const existing = storeCache.get(slug);
+  if (existing && existing.expires > now) return existing.promise;
 
   const promise = request<ApiStore>("/store", { revalidate: 300 });
-  storeCache.set(slug, { promise, expires: now + STORE_CACHE_TTL_MS });
-  // Don't let a resolved/rejected promise hang around forever if the TTL
-  // sweeps don't clear it — evict the entry after the TTL window regardless
-  // of what else happens in the meantime.
+  const entry: StoreCacheEntry = { promise, expires: now + STORE_SUCCESS_TTL_MS };
+  storeCache.set(slug, entry);
+  promise.catch(() => {
+    // A rejected Promise is still cached; extend its lifetime so we don't
+    // hammer the backend for a known-bad store while the user clicks around.
+    entry.expires = Date.now() + STORE_ERROR_TTL_MS;
+    setTimeout(() => {
+      if (storeCache.get(slug) === entry && entry.expires <= Date.now()) {
+        storeCache.delete(slug);
+      }
+    }, STORE_ERROR_TTL_MS + 500).unref?.();
+  });
   setTimeout(() => {
-    const current = storeCache.get(slug);
-    if (current && current.expires <= Date.now()) storeCache.delete(slug);
-  }, STORE_CACHE_TTL_MS + 500).unref?.();
+    if (storeCache.get(slug) === entry && entry.expires <= Date.now()) {
+      storeCache.delete(slug);
+    }
+  }, STORE_SUCCESS_TTL_MS + 500).unref?.();
   return promise;
 }
 
