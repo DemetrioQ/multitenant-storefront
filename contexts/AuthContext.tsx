@@ -33,11 +33,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return;
     }
     const customer = decodeJwt(token);
-    if (!customer || customer.sub_type !== "customer") {
+    if (!customer) {
+      // JWT didn't even parse — something's wrong with the token format.
+      // eslint-disable-next-line no-console
+      console.warn("[auth] received token that failed JWT decode; clearing");
       setAuthToken(null);
       setState({ status: "anonymous", customer: null, token: null });
       return;
     }
+    if (customer.sub_type && customer.sub_type !== "customer") {
+      // Backend can emit merchant JWTs on the same host (shared signing key);
+      // those should never be used here.
+      // eslint-disable-next-line no-console
+      console.warn(`[auth] rejecting non-customer JWT (sub_type=${customer.sub_type})`);
+      setAuthToken(null);
+      setState({ status: "anonymous", customer: null, token: null });
+      return;
+    }
+    // Accept the token even if sub_type is absent — the backend enforces
+    // customer-only access on every protected endpoint, so we don't gate
+    // the UI on a claim whose exact spelling we can't guarantee.
     setState({ status: "authenticated", customer, token });
   }, []);
 
