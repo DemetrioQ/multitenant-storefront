@@ -7,6 +7,7 @@ import { OrderStatusBadge } from "@/components/OrderStatusBadge";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCurrency } from "@/contexts/StoreContext";
 import { getOrder } from "@/lib/checkout";
+import { parseUtcDate } from "@/lib/dates";
 import { formatPrice } from "@/lib/format";
 import { ApiError, type AddressDto, type OrderDto } from "@/lib/types";
 
@@ -93,7 +94,7 @@ export default function OrderDetailPage() {
         <div>
           <h1 className="text-3xl font-semibold tracking-tight font-mono">{order.number}</h1>
           <p className="mt-1 text-sm text-[var(--muted)]">
-            Placed {new Date(order.createdAt).toLocaleString()}
+            Placed {parseUtcDate(order.createdAt).toLocaleString()}
           </p>
         </div>
         <OrderStatusBadge status={order.status} />
@@ -169,7 +170,7 @@ function Timestamp({ label, value }: { label: string; value: string | null }) {
   return (
     <div className="flex justify-between">
       <span>{label}</span>
-      <span className="tabular-nums">{value ? new Date(value).toLocaleString() : "—"}</span>
+      <span className="tabular-nums">{value ? parseUtcDate(value).toLocaleString() : "—"}</span>
     </div>
   );
 }

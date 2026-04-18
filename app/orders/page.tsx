@@ -7,6 +7,7 @@ import { OrderStatusBadge } from "@/components/OrderStatusBadge";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCurrency } from "@/contexts/StoreContext";
 import { listOrders } from "@/lib/checkout";
+import { parseUtcDate } from "@/lib/dates";
 import { formatPrice } from "@/lib/format";
 import { ApiError, type OrderListDto } from "@/lib/types";
 
@@ -99,7 +100,7 @@ export default function OrdersPage() {
                 >
                   <div className="min-w-0">
                     <p className="font-mono text-sm">{o.number}</p>
-                    <p className="text-xs text-[var(--muted)]">{new Date(o.createdAt).toLocaleString()}</p>
+                    <p className="text-xs text-[var(--muted)]">{parseUtcDate(o.createdAt).toLocaleString()}</p>
                   </div>
                   <p className="hidden sm:block text-sm text-[var(--muted)]">
                     {o.itemCount} item{o.itemCount === 1 ? "" : "s"}

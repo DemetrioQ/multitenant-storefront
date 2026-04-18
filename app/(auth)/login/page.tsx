@@ -6,6 +6,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { AuthField } from "@/components/auth/AuthField";
 import { useAuth } from "@/contexts/AuthContext";
 import { resendVerification } from "@/lib/auth";
+import { formatDuration, parseUtcDate } from "@/lib/dates";
 import { ApiError, type EmailNotVerifiedProblem } from "@/lib/types";
 
 type Submission =
@@ -58,7 +59,7 @@ export default function LoginPage() {
             setSubmission({
               kind: "unverified",
               email,
-              canResendAt: problem.canResendAt ? new Date(problem.canResendAt) : null,
+              canResendAt: problem.canResendAt ? parseUtcDate(problem.canResendAt) : null,
             });
             return;
           }
@@ -134,7 +135,7 @@ export default function LoginPage() {
               {resendState === "sent"
                 ? "Sent — check your inbox"
                 : cooldown > 0
-                ? `Resend in ${cooldown}s`
+                ? `Resend in ${formatDuration(cooldown)}`
                 : resendState === "sending"
                 ? "Sending…"
                 : "Resend verification email"}
