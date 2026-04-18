@@ -12,7 +12,7 @@ async function loadStore() {
   try {
     return await getStore();
   } catch (err) {
-    if (err instanceof ApiError && err.status === 404) return null;
+    if (err instanceof ApiError) return null;
     throw err;
   }
 }

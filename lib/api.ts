@@ -31,13 +31,21 @@ function buildUrl(base: string, path: string, slug: string | null, override: boo
   return url.toString();
 }
 
-async function request<T>(path: string, opts: { revalidate?: number; extra?: Record<string, string | number> } = {}): Promise<T> {
+const DEFAULT_TIMEOUT_MS = 5000;
+
+async function request<T>(path: string, opts: { revalidate?: number; extra?: Record<string, string | number>; timeoutMs?: number } = {}): Promise<T> {
   const { url, slug, override } = await resolveBase();
   const full = buildUrl(url, path, slug, override, opts.extra);
-  const res = await fetch(full, {
-    headers: { Accept: "application/json" },
-    next: { revalidate: opts.revalidate ?? 60 },
-  });
+  let res: Response;
+  try {
+    res = await fetch(full, {
+      headers: { Accept: "application/json" },
+      next: { revalidate: opts.revalidate ?? 60 },
+      signal: AbortSignal.timeout(opts.timeoutMs ?? DEFAULT_TIMEOUT_MS),
+    });
+  } catch (err) {
+    throw new ApiError(0, err instanceof Error ? err.message : "Network error");
+  }
   if (!res.ok) {
     let problem: ApiProblemDetails | undefined;
     try {
