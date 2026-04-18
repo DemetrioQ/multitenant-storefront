@@ -1,4 +1,5 @@
 import { headers } from "next/headers";
+import { cache } from "react";
 import { extractSlugFromHost } from "./config";
 import {
   ApiError,
@@ -71,9 +72,9 @@ async function request<T>(path: string, opts: { revalidate?: number; extra?: Rec
   return (await res.json()) as T;
 }
 
-export function getStore(): Promise<ApiStore> {
+export const getStore = cache((): Promise<ApiStore> => {
   return request<ApiStore>("/store", { revalidate: 300 });
-}
+});
 
 export function listProducts(params: { page?: number; pageSize?: number } = {}): Promise<ApiProductList> {
   const extra: Record<string, string | number> = {};
