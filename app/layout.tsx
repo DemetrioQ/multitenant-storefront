@@ -3,7 +3,6 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { headers } from "next/headers";
 import { getStore } from "@/lib/api";
 import { extractSlugFromHost, getBareHostUrl, isBareHost } from "@/lib/config";
-import { ApiError } from "@/lib/types";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { CartProvider } from "@/contexts/CartContext";
 import { StoreProvider } from "@/contexts/StoreContext";
@@ -20,9 +19,10 @@ async function loadStore() {
   if (!extractSlugFromHost(h.get("host"))) return null;
   try {
     return await getStore();
-  } catch (err) {
-    if (err instanceof ApiError) return null;
-    throw err;
+  } catch {
+    // Any failure (404, network timeout, TLS, etc) degrades to placeholder chrome
+    // — the layout must stay renderable even when the backend is unreachable.
+    return null;
   }
 }
 

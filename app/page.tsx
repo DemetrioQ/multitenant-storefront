@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getStore, listProducts } from "@/lib/api";
-import { ApiError, type ApiStore } from "@/lib/types";
+import { ApiError, type ApiProduct, type ApiStore } from "@/lib/types";
 import { formatPrice } from "@/lib/format";
 
 export default async function HomePage() {
@@ -13,7 +13,13 @@ export default async function HomePage() {
     throw err;
   }
 
-  const { items } = await listProducts({ page: 1, pageSize: 4 });
+  let items: ApiProduct[] = [];
+  try {
+    const res = await listProducts({ page: 1, pageSize: 4 });
+    items = res.items;
+  } catch {
+    // Non-fatal — the home page still renders without featured products.
+  }
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-16">

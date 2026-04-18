@@ -45,7 +45,14 @@ export default async function ProductDetailPage({ params }: Props) {
     [product, store] = await Promise.all([getProduct(slug), getStore()]);
   } catch (err) {
     if (err instanceof ApiError && err.status === 404) notFound();
-    throw err;
+    return (
+      <div className="mx-auto max-w-xl px-6 py-16 text-center">
+        <h1 className="text-2xl font-semibold">Can&apos;t load this product right now</h1>
+        <p className="mt-3 text-sm text-[var(--muted)]">
+          The backend is temporarily unreachable. Please try again shortly.
+        </p>
+      </div>
+    );
   }
 
   const outOfStock = product.stock === 0;

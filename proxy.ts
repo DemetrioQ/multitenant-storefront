@@ -13,7 +13,7 @@ export function proxy(request: NextRequest) {
     if (pathname === "/landing" || pathname.startsWith("/landing/")) {
       return NextResponse.next();
     }
-    return NextResponse.rewrite(new URL("/store-not-found", request.url));
+    return NextResponse.redirect(new URL("/", request.url));
   }
 
   if (isStoreHost(host)) {

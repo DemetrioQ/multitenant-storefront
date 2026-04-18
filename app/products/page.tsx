@@ -1,6 +1,8 @@
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import { getStore, listProducts } from "@/lib/api";
 import { formatPrice } from "@/lib/format";
+import { ApiError, type ApiProductList, type ApiStore } from "@/lib/types";
 
 type Props = {
   searchParams: Promise<{ page?: string; pageSize?: string }>;
@@ -13,15 +15,43 @@ function clampInt(value: string | undefined, min: number, max: number, fallback:
   return Math.min(Math.max(n, min), max);
 }
 
+function ProductsUnavailable() {
+  return (
+    <div className="mx-auto max-w-6xl px-6 py-12">
+      <header className="mb-8">
+        <h1 className="text-3xl font-semibold tracking-tight">Products</h1>
+      </header>
+      <div className="rounded-lg border border-dashed border-[var(--border)] p-12 text-center">
+        <p className="text-[var(--muted)]">
+          We couldn&apos;t load products right now. Please refresh in a moment.
+        </p>
+        <Link
+          href="/"
+          className="mt-6 inline-flex items-center rounded-full border border-[var(--border)] px-4 py-2 text-sm hover:border-[var(--brand)]"
+        >
+          Back home
+        </Link>
+      </div>
+    </div>
+  );
+}
+
 export default async function ProductsPage({ searchParams }: Props) {
   const sp = await searchParams;
   const page = clampInt(sp.page, 1, 1000, 1);
   const pageSize = clampInt(sp.pageSize, 1, 100, 20);
 
-  const [store, data] = await Promise.all([
-    getStore(),
-    listProducts({ page, pageSize }),
-  ]);
+  let store: ApiStore;
+  let data: ApiProductList;
+  try {
+    [store, data] = await Promise.all([
+      getStore(),
+      listProducts({ page, pageSize }),
+    ]);
+  } catch (err) {
+    if (err instanceof ApiError && err.status === 404) notFound();
+    return <ProductsUnavailable />;
+  }
 
   const totalPages = Math.max(1, Math.ceil(data.totalCount / pageSize));
 
