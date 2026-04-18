@@ -16,20 +16,19 @@ type RequestOptions = {
   signal?: AbortSignal;
 };
 
-function resolveBase(): { url: string; slug: string | null; override: boolean } {
-  const override = process.env.NEXT_PUBLIC_API_URL?.trim();
-  const host = window.location.host;
-  const slug = extractSlugFromHost(host);
-  if (override) {
-    return { url: override.replace(/\/$/, ""), slug, override: true };
-  }
-  return { url: `${window.location.protocol}//${host}`, slug, override: false };
-}
-
 function buildUrl(path: string, query?: Record<string, string | number | undefined>): string {
-  const { url, slug, override } = resolveBase();
-  const full = new URL(`${url}${STOREFRONT_PREFIX}${path}`);
-  if (override && slug) full.searchParams.set("storeSlug", slug);
+  // Always same-origin from the browser. next.config.ts rewrites /api/v1/* to
+  // the backend when NEXT_PUBLIC_API_URL is set, so CORS is out of the picture.
+  const full = new URL(`${STOREFRONT_PREFIX}${path}`, window.location.origin);
+
+  // Dev fallback: when proxying to a different-origin backend, the rewrite
+  // loses the original tenant Host header — pass the slug explicitly.
+  const usingProxy = !!process.env.NEXT_PUBLIC_API_URL?.trim();
+  if (usingProxy) {
+    const slug = extractSlugFromHost(window.location.host);
+    if (slug) full.searchParams.set("storeSlug", slug);
+  }
+
   if (query) {
     for (const [k, v] of Object.entries(query)) {
       if (v !== undefined && v !== null && v !== "") full.searchParams.set(k, String(v));
