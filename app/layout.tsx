@@ -3,26 +3,35 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { headers } from "next/headers";
 import { getStore } from "@/lib/api";
 import { extractSlugFromHost, getBareHostUrl, isBareHost } from "@/lib/config";
+import { ApiError, type ApiStore } from "@/lib/types";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { CartProvider } from "@/contexts/CartContext";
 import { StoreProvider } from "@/contexts/StoreContext";
 import { Header } from "@/components/Header";
 import { LandingHeader } from "@/components/LandingHeader";
 import { LandingFooter } from "@/components/LandingFooter";
+import { StoreUnavailableScreen } from "@/components/StoreUnavailableScreen";
 import "./globals.css";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
-async function loadStore() {
+type StoreState =
+  | { kind: "ok"; store: ApiStore }
+  | { kind: "notfound" }
+  | { kind: "unavailable"; message: string }
+  | { kind: "not-a-store" };
+
+async function loadStoreState(): Promise<StoreState> {
   const h = await headers();
-  if (!extractSlugFromHost(h.get("host"))) return null;
+  if (!extractSlugFromHost(h.get("host"))) return { kind: "not-a-store" };
   try {
-    return await getStore();
-  } catch {
-    // Any failure (404, network timeout, TLS, etc) degrades to placeholder chrome
-    // — the layout must stay renderable even when the backend is unreachable.
-    return null;
+    const store = await getStore();
+    return { kind: "ok", store };
+  } catch (err) {
+    if (err instanceof ApiError && err.status === 404) return { kind: "notfound" };
+    const message = err instanceof Error ? err.message : "Backend unreachable";
+    return { kind: "unavailable", message };
   }
 }
 
@@ -38,22 +47,22 @@ export async function generateMetadata(): Promise<Metadata> {
     };
   }
 
-  const store = await loadStore();
-  if (!store) {
+  const state = await loadStoreState();
+  if (state.kind === "ok") {
     return {
-      title: "Store not found",
-      robots: { index: false, follow: false },
+      title: { template: `%s · ${state.store.name}`, default: state.store.name },
+      description: `${state.store.name} storefront`,
+      openGraph: { siteName: state.store.name, type: "website" },
+      robots: { index: true, follow: true },
     };
   }
-  return {
-    title: { template: `%s · ${store.name}`, default: store.name },
-    description: `${store.name} storefront`,
-    openGraph: {
-      siteName: store.name,
-      type: "website",
-    },
-    robots: { index: true, follow: true },
-  };
+  if (state.kind === "notfound") {
+    return { title: "Store not available", robots: { index: false, follow: false } };
+  }
+  if (state.kind === "unavailable") {
+    return { title: "Store temporarily unavailable", robots: { index: false, follow: false } };
+  }
+  return { title: "Store not found", robots: { index: false, follow: false } };
 }
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
@@ -77,7 +86,30 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     );
   }
 
-  const store = await loadStore();
+  const state = await loadStoreState();
+
+  if (state.kind === "notfound" || state.kind === "unavailable") {
+    const mode = state.kind === "notfound" ? "notfound" : "unavailable";
+    const message = state.kind === "unavailable" ? state.message : undefined;
+    return (
+      <html lang="en" className={htmlClass}>
+        <body className="min-h-full flex flex-col">
+          <header className="border-b border-[var(--border)]">
+            <div className="mx-auto max-w-6xl px-6 py-4">
+              <a href={bareHostUrl} className="text-lg font-semibold tracking-tight hover:underline">
+                SaaS API Portfolio
+              </a>
+            </div>
+          </header>
+          <main className="flex-1 flex">
+            <StoreUnavailableScreen mode={mode} message={message} bareHostUrl={bareHostUrl} />
+          </main>
+        </body>
+      </html>
+    );
+  }
+
+  const store = state.kind === "ok" ? state.store : null;
   const storeName = store?.name ?? "Store";
 
   return (
