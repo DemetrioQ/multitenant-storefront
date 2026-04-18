@@ -6,9 +6,11 @@ import {
   type ApiProduct,
   type ApiProductList,
   type ApiStore,
+  type StoreSummaryList,
 } from "./types";
 
 const STOREFRONT_PREFIX = "/api/v1/storefront";
+const PLATFORM_PREFIX = "/api/v1";
 
 async function resolveBase(): Promise<{ url: string; slug: string | null; override: boolean }> {
   const h = await headers();
@@ -22,9 +24,16 @@ async function resolveBase(): Promise<{ url: string; slug: string | null; overri
   return { url: `${proto}://${host}`, slug, override: false };
 }
 
-function buildUrl(base: string, path: string, slug: string | null, override: boolean, extra?: Record<string, string | number>): string {
-  const url = new URL(`${base}${STOREFRONT_PREFIX}${path}`);
-  if (override && slug) url.searchParams.set("storeSlug", slug);
+function buildUrl(
+  base: string,
+  path: string,
+  slug: string | null,
+  override: boolean,
+  extra?: Record<string, string | number>,
+  prefix: string = STOREFRONT_PREFIX,
+): string {
+  const url = new URL(`${base}${prefix}${path}`);
+  if (override && slug && prefix === STOREFRONT_PREFIX) url.searchParams.set("storeSlug", slug);
   if (extra) {
     for (const [k, v] of Object.entries(extra)) url.searchParams.set(k, String(v));
   }
@@ -34,9 +43,9 @@ function buildUrl(base: string, path: string, slug: string | null, override: boo
 const DEFAULT_TIMEOUT_MS = 5000;
 const IS_DEV = process.env.NODE_ENV !== "production";
 
-async function request<T>(path: string, opts: { revalidate?: number; extra?: Record<string, string | number>; timeoutMs?: number } = {}): Promise<T> {
+async function request<T>(path: string, opts: { revalidate?: number; extra?: Record<string, string | number>; timeoutMs?: number; prefix?: string } = {}): Promise<T> {
   const { url, slug, override } = await resolveBase();
-  const full = buildUrl(url, path, slug, override, opts.extra);
+  const full = buildUrl(url, path, slug, override, opts.extra, opts.prefix);
   let res: Response;
   try {
     res = await fetch(full, {
@@ -75,6 +84,13 @@ export function listProducts(params: { page?: number; pageSize?: number } = {}):
 
 export function getProduct(slug: string): Promise<ApiProduct> {
   return request<ApiProduct>(`/products/${encodeURIComponent(slug)}`, { revalidate: 60 });
+}
+
+export function listStores(params: { page?: number; pageSize?: number } = {}): Promise<StoreSummaryList> {
+  const extra: Record<string, string | number> = {};
+  if (params.page) extra.page = params.page;
+  if (params.pageSize) extra.pageSize = params.pageSize;
+  return request<StoreSummaryList>("/stores", { revalidate: 60, extra, prefix: PLATFORM_PREFIX });
 }
 
 export async function fetchAllProductSlugs(pageSize = 100): Promise<ApiProduct[]> {

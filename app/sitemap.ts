@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { headers } from "next/headers";
 import { fetchAllProductSlugs } from "@/lib/api";
+import { isBareHost, isStoreHost } from "@/lib/config";
 import { ApiError } from "@/lib/types";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -8,6 +9,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const host = h.get("host") ?? "localhost";
   const proto = h.get("x-forwarded-proto") ?? "https";
   const origin = `${proto}://${host}`;
+
+  if (isBareHost(host)) {
+    return [{ url: origin, changeFrequency: "weekly", priority: 1 }];
+  }
+
+  if (!isStoreHost(host)) return [];
 
   const base: MetadataRoute.Sitemap = [
     { url: origin, changeFrequency: "weekly", priority: 1 },

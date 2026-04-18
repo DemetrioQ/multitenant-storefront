@@ -144,3 +144,16 @@ export type CheckoutSessionResponse = {
   sessionId: string;
   paymentUrl: string;
 };
+
+export type StoreSummary = {
+  name: string;
+  slug: string;
+  storeUrl: string;
+};
+
+export type StoreSummaryList = {
+  items: StoreSummary[];
+  totalCount: number;
+  page: number;
+  pageSize: number;
+};
