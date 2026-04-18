@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/contexts/CartContext";
 import { useCurrency } from "@/contexts/StoreContext";
 import { getOrder } from "@/lib/checkout";
@@ -19,10 +20,12 @@ const POLL_INTERVAL_MS = 1500;
 const MAX_ATTEMPTS = 40;
 
 export default function CheckoutSuccessPage() {
+  const router = useRouter();
   const params = useSearchParams();
   // Backend substitutes {ORDER_ID} in successUrl before redirecting the user
   // back from the payment provider, so `?order=<guid>` is always populated.
   const orderId = params.get("order");
+  const { status: authStatus } = useAuth();
   const { refresh: refreshCart } = useCart();
   const currency = useCurrency();
   const [state, setState] = useState<State>(() =>
@@ -30,8 +33,21 @@ export default function CheckoutSuccessPage() {
   );
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // Coming back from the payment provider is a full page load, so the
+  // AuthContext is mid-refresh when this page first mounts. If that refresh
+  // fails (customerRefreshToken expired) we send the user through login with
+  // the order URL as the return target.
+  useEffect(() => {
+    if (authStatus === "anonymous" && orderId) {
+      router.replace(`/login?next=${encodeURIComponent(`/checkout/success?order=${orderId}`)}`);
+    }
+  }, [authStatus, orderId, router]);
+
   useEffect(() => {
     if (!orderId) return;
+    // Wait for the silent refresh to finish hydrating the JWT — otherwise the
+    // first getOrder call goes out without an Authorization header and 401s.
+    if (authStatus !== "authenticated") return;
     let cancelled = false;
     let attempts = 0;
 
@@ -66,9 +82,9 @@ export default function CheckoutSuccessPage() {
       cancelled = true;
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
-  }, [orderId, refreshCart]);
+  }, [orderId, authStatus, refreshCart]);
 
-  if (state.kind === "loading") {
+  if (state.kind === "loading" || authStatus === "loading") {
     return (
       <div className="mx-auto max-w-xl px-6 py-16 text-center text-[var(--muted)]">
         Confirming your order…
