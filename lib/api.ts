@@ -44,7 +44,9 @@ async function request<T>(path: string, opts: { revalidate?: number; extra?: Rec
       signal: AbortSignal.timeout(opts.timeoutMs ?? DEFAULT_TIMEOUT_MS),
     });
   } catch (err) {
-    throw new ApiError(0, err instanceof Error ? err.message : "Network error");
+    const cause = err instanceof Error && "cause" in err && err.cause instanceof Error ? ` (${err.cause.message})` : "";
+    const message = err instanceof Error ? err.message : "Network error";
+    throw new ApiError(0, `${message}${cause}`);
   }
   if (!res.ok) {
     let problem: ApiProblemDetails | undefined;
