@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getProduct, getStore } from "@/lib/api";
 import { ApiError, type ApiProduct, type ApiStore } from "@/lib/types";
 import { formatPrice } from "@/lib/format";
+import { AddToCartButton } from "@/components/AddToCartButton";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -80,13 +81,9 @@ export default async function ProductDetailPage({ params }: Props) {
           <p className="mt-6 text-[var(--foreground)] whitespace-pre-line leading-relaxed">
             {product.description}
           </p>
-          <button
-            type="button"
-            disabled={outOfStock}
-            className="mt-8 inline-flex items-center rounded-full bg-[var(--brand)] px-6 py-3 text-sm font-medium text-[var(--brand-contrast)] hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
-          >
-            {outOfStock ? "Unavailable" : "Add to cart"}
-          </button>
+          <div className="mt-8">
+            <AddToCartButton productId={product.id} maxStock={product.stock} />
+          </div>
           {!outOfStock && (
             <p className="mt-2 text-xs text-[var(--muted)]">
               {product.stock} in stock

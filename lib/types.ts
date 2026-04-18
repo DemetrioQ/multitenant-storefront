@@ -66,3 +66,81 @@ export type CustomerClaims = {
   email: string;
   exp: number;
 };
+
+export type CartLineItem = {
+  productId: string;
+  productName: string;
+  productSlug: string;
+  imageUrl: string | null;
+  unitPrice: number;
+  quantity: number;
+  lineTotal: number;
+  availableStock: number;
+};
+
+export type CartDto = {
+  cartId: string;
+  items: CartLineItem[];
+  subtotal: number;
+  totalItems: number;
+};
+
+export type AddressDto = {
+  line1: string;
+  line2: string | null;
+  city: string;
+  region: string | null;
+  postalCode: string;
+  country: string;
+};
+
+export type OrderStatus = "pending" | "paid" | "fulfilled" | "canceled" | "refunded";
+
+export type OrderItemDto = {
+  productId: string;
+  productName: string;
+  productSlug: string;
+  productSku: string | null;
+  unitPrice: number;
+  quantity: number;
+  lineTotal: number;
+};
+
+export type OrderDto = {
+  id: string;
+  number: string;
+  status: OrderStatus;
+  subtotal: number;
+  total: number;
+  shippingAddress: AddressDto;
+  billingAddress: AddressDto;
+  items: OrderItemDto[];
+  createdAt: string;
+  paidAt: string | null;
+  fulfilledAt: string | null;
+  canceledAt: string | null;
+};
+
+export type OrderSummaryDto = {
+  id: string;
+  number: string;
+  status: OrderStatus;
+  total: number;
+  itemCount: number;
+  createdAt: string;
+};
+
+export type OrderListDto = {
+  items: OrderSummaryDto[];
+  totalCount: number;
+  page: number;
+  pageSize: number;
+};
+
+export type CheckoutSessionResponse = {
+  orderId: string;
+  orderNumber: string;
+  provider: "simulation" | "stripe";
+  sessionId: string;
+  paymentUrl: string;
+};
