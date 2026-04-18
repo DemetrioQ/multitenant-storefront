@@ -11,38 +11,57 @@ type Props = {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
+
+  let store: ApiStore;
   try {
-    const [product, store] = await Promise.all([getProduct(slug), getStore()]);
-    const ogImages = product.imageUrl ? [{ url: product.imageUrl, alt: product.name }] : undefined;
-    return {
-      title: product.name,
-      description: product.description,
-      openGraph: {
-        title: product.name,
-        description: product.description,
-        siteName: store.name,
-        type: "website",
-        images: ogImages,
-      },
-      twitter: {
-        card: product.imageUrl ? "summary_large_image" : "summary",
-        title: product.name,
-        description: product.description,
-        images: product.imageUrl ? [product.imageUrl] : undefined,
-      },
-    };
+    store = await getStore();
   } catch {
     return { title: "Product not found", robots: { index: false, follow: false } };
   }
+
+  let product: ApiProduct;
+  try {
+    product = await getProduct(slug);
+  } catch {
+    return { title: "Product not found", robots: { index: false, follow: false } };
+  }
+
+  const ogImages = product.imageUrl ? [{ url: product.imageUrl, alt: product.name }] : undefined;
+  return {
+    title: product.name,
+    description: product.description,
+    openGraph: {
+      title: product.name,
+      description: product.description,
+      siteName: store.name,
+      type: "website",
+      images: ogImages,
+    },
+    twitter: {
+      card: product.imageUrl ? "summary_large_image" : "summary",
+      title: product.name,
+      description: product.description,
+      images: product.imageUrl ? [product.imageUrl] : undefined,
+    },
+  };
 }
 
 export default async function ProductDetailPage({ params }: Props) {
   const { slug } = await params;
 
-  let product: ApiProduct;
   let store: ApiStore;
   try {
-    [product, store] = await Promise.all([getProduct(slug), getStore()]);
+    store = await getStore();
+  } catch (err) {
+    if (err instanceof ApiError && err.status === 404) notFound();
+    // Layout will render the store-unavailable screen; no point firing
+    // the product call since the backend is clearly unreachable.
+    return null;
+  }
+
+  let product: ApiProduct;
+  try {
+    product = await getProduct(slug);
   } catch (err) {
     if (err instanceof ApiError && err.status === 404) notFound();
     return (

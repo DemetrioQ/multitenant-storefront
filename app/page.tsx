@@ -10,7 +10,9 @@ export default async function HomePage() {
     store = await getStore();
   } catch (err) {
     if (err instanceof ApiError && err.status === 404) notFound();
-    throw err;
+    // Layout handles the store-unavailable screen; skip the products call
+    // because it's guaranteed to fail against the same backend.
+    return null;
   }
 
   let items: ApiProduct[] = [];

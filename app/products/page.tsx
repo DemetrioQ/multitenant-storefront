@@ -42,12 +42,18 @@ export default async function ProductsPage({ searchParams }: Props) {
   const pageSize = clampInt(sp.pageSize, 1, 100, 20);
 
   let store: ApiStore;
+  try {
+    store = await getStore();
+  } catch (err) {
+    if (err instanceof ApiError && err.status === 404) notFound();
+    // Layout already renders the store-unavailable screen; bail before
+    // firing a products call that's guaranteed to fail too.
+    return null;
+  }
+
   let data: ApiProductList;
   try {
-    [store, data] = await Promise.all([
-      getStore(),
-      listProducts({ page, pageSize }),
-    ]);
+    data = await listProducts({ page, pageSize });
   } catch (err) {
     if (err instanceof ApiError && err.status === 404) notFound();
     return <ProductsUnavailable />;
