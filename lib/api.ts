@@ -1,4 +1,5 @@
 import { headers } from "next/headers";
+import { cache } from "react";
 import { extractSlugFromHost } from "./config";
 import {
   ApiError,
@@ -71,43 +72,35 @@ async function request<T>(path: string, opts: { revalidate?: number; extra?: Rec
   return (await res.json()) as T;
 }
 
-// Process-wide TTL cache for /store. Next's Link prefetch + real navigation
-// each do a separate SSR render, and Next's data cache doesn't hold error
-// responses — so an invalid tenant would hit /store twice every click.
-// Asymmetric TTL: successes stay cached just long enough to absorb
-// prefetch→click (2s, below human reaction time for dashboard edit → F5, so
-// edits still feel instant); failures stay cached longer (30s) so a
-// known-bad subdomain doesn't keep hitting the backend.
-type StoreCacheEntry = { promise: Promise<ApiStore>; expires: number };
-const STORE_SUCCESS_TTL_MS = 2_000;
+// Success path: React cache() dedupes within a single render pass
+// (generateMetadata + layout + page share one call). No cross-render caching,
+// so dashboard edits to store info show up on the very next page load.
+const fetchStoreMemoized = cache(async (): Promise<ApiStore> => {
+  return request<ApiStore>("/store", { revalidate: 300 });
+});
+
+// Error path: a known-bad subdomain would otherwise hit the backend on every
+// prefetch + every click. We cache rejected Promises for 30s keyed by tenant
+// slug so the backend stops getting pinged once we know the store is missing.
+type StoreErrorEntry = { promise: Promise<ApiStore>; expires: number };
 const STORE_ERROR_TTL_MS = 30_000;
-const storeCache = new Map<string, StoreCacheEntry>();
+const storeErrorCache = new Map<string, StoreErrorEntry>();
 
 export async function getStore(): Promise<ApiStore> {
   const h = await headers();
   const slug = extractSlugFromHost(h.get("host")) ?? "__no_slug__";
-  const now = Date.now();
-  const existing = storeCache.get(slug);
-  if (existing && existing.expires > now) return existing.promise;
 
-  const promise = request<ApiStore>("/store", { revalidate: 300 });
-  const entry: StoreCacheEntry = { promise, expires: now + STORE_SUCCESS_TTL_MS };
-  storeCache.set(slug, entry);
+  const cachedError = storeErrorCache.get(slug);
+  if (cachedError && cachedError.expires > Date.now()) return cachedError.promise;
+
+  const promise = fetchStoreMemoized();
   promise.catch(() => {
-    // A rejected Promise is still cached; extend its lifetime so we don't
-    // hammer the backend for a known-bad store while the user clicks around.
-    entry.expires = Date.now() + STORE_ERROR_TTL_MS;
+    const entry: StoreErrorEntry = { promise, expires: Date.now() + STORE_ERROR_TTL_MS };
+    storeErrorCache.set(slug, entry);
     setTimeout(() => {
-      if (storeCache.get(slug) === entry && entry.expires <= Date.now()) {
-        storeCache.delete(slug);
-      }
+      if (storeErrorCache.get(slug) === entry) storeErrorCache.delete(slug);
     }, STORE_ERROR_TTL_MS + 500).unref?.();
   });
-  setTimeout(() => {
-    if (storeCache.get(slug) === entry && entry.expires <= Date.now()) {
-      storeCache.delete(slug);
-    }
-  }, STORE_SUCCESS_TTL_MS + 500).unref?.();
   return promise;
 }
 
