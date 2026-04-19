@@ -94,6 +94,26 @@ export type AddressDto = {
   country: string;
 };
 
+export type CustomerAddressDto = {
+  id: string;
+  label: string | null;
+  line1: string;
+  line2: string | null;
+  city: string;
+  region: string | null;
+  postalCode: string;
+  country: string;
+  isDefaultShipping: boolean;
+  isDefaultBilling: boolean;
+};
+
+export type SaveAddressInput = {
+  label?: string | null;
+  address: AddressDto;
+  isDefaultShipping?: boolean;
+  isDefaultBilling?: boolean;
+};
+
 export type OrderStatus = "pending" | "paid" | "fulfilled" | "canceled" | "refunded";
 
 export type OrderItemDto = {

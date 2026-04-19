@@ -10,7 +10,6 @@ export function register() {
 
   if (process.env.NODE_TLS_REJECT_UNAUTHORIZED !== "0") {
     process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
-    // eslint-disable-next-line no-console
     console.warn(
       `[saas-storefront] TLS verification disabled for dev HTTPS backend at ${backend}. Trust the cert with \`dotnet dev-certs https --trust\` to re-enable.`,
     );

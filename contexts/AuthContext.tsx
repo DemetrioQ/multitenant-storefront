@@ -35,7 +35,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const customer = decodeJwt(token);
     if (!customer) {
       // JWT didn't even parse — something's wrong with the token format.
-      // eslint-disable-next-line no-console
       console.warn("[auth] received token that failed JWT decode; clearing");
       setAuthToken(null);
       setState({ status: "anonymous", customer: null, token: null });
@@ -44,7 +43,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (customer.sub_type && customer.sub_type !== "customer") {
       // Backend can emit merchant JWTs on the same host (shared signing key);
       // those should never be used here.
-      // eslint-disable-next-line no-console
       console.warn(`[auth] rejecting non-customer JWT (sub_type=${customer.sub_type})`);
       setAuthToken(null);
       setState({ status: "anonymous", customer: null, token: null });

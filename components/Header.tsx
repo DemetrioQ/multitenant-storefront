@@ -79,6 +79,13 @@ export function Header({ storeName }: Props) {
                     My orders
                   </Link>
                   <Link
+                    href="/account/addresses"
+                    onClick={() => setMenuOpen(false)}
+                    className="block px-4 py-2 hover:bg-[var(--border)]"
+                  >
+                    Saved addresses
+                  </Link>
+                  <Link
                     href="/cart"
                     onClick={() => setMenuOpen(false)}
                     className="block px-4 py-2 hover:bg-[var(--border)]"

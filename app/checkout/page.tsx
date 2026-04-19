@@ -3,18 +3,50 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, type FormEvent } from "react";
-import { AddressForm, emptyAddress, validateAddress } from "@/components/checkout/AddressForm";
+import { AddressPicker, type AddressSelection } from "@/components/checkout/AddressPicker";
+import { emptyAddress, validateAddress } from "@/components/checkout/AddressForm";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/contexts/CartContext";
 import { useCurrency } from "@/contexts/StoreContext";
+import { createAddress, listAddresses } from "@/lib/addresses";
 import { createCheckoutSession, placeOrder } from "@/lib/checkout";
 import { formatPrice } from "@/lib/format";
-import { ApiError, type AddressDto } from "@/lib/types";
+import { ApiError, type AddressDto, type CustomerAddressDto } from "@/lib/types";
 
 type Submission =
   | { kind: "idle" }
   | { kind: "submitting"; mode: "place" | "session" }
   | { kind: "error"; message: string };
+
+type ResolvedSlot = { inline: AddressDto; id?: undefined } | { inline?: undefined; id: string };
+
+function initialShippingSelection(addresses: CustomerAddressDto[]): AddressSelection {
+  const def = addresses.find((a) => a.isDefaultShipping) ?? addresses[0];
+  if (def) return { kind: "saved", id: def.id };
+  return { kind: "inline", address: emptyAddress(), save: false, label: "" };
+}
+
+function initialBillingSelection(addresses: CustomerAddressDto[]): AddressSelection {
+  const def = addresses.find((a) => a.isDefaultBilling) ?? addresses[0];
+  if (def) return { kind: "saved", id: def.id };
+  return { kind: "inline", address: emptyAddress(), save: false, label: "" };
+}
+
+async function resolveSlot(
+  selection: AddressSelection,
+  flags: { isDefaultShipping?: boolean; isDefaultBilling?: boolean } = {},
+): Promise<ResolvedSlot> {
+  if (selection.kind === "saved") return { id: selection.id };
+  if (selection.save) {
+    const saved = await createAddress({
+      label: selection.label.trim() || null,
+      address: selection.address,
+      ...flags,
+    });
+    return { id: saved.id };
+  }
+  return { inline: selection.address };
+}
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -22,8 +54,13 @@ export default function CheckoutPage() {
   const { cart, status: cartStatus, refresh: refreshCart, clear: clearCart } = useCart();
   const currency = useCurrency();
 
-  const [shipping, setShipping] = useState<AddressDto>(emptyAddress);
-  const [billing, setBilling] = useState<AddressDto>(emptyAddress);
+  const [addresses, setAddresses] = useState<CustomerAddressDto[] | null>(null);
+  const [shipping, setShipping] = useState<AddressSelection>(() =>
+    ({ kind: "inline", address: emptyAddress(), save: false, label: "" })
+  );
+  const [billing, setBilling] = useState<AddressSelection>(() =>
+    ({ kind: "inline", address: emptyAddress(), save: false, label: "" })
+  );
   const [useSameAddress, setUseSameAddress] = useState(true);
   const [submission, setSubmission] = useState<Submission>({ kind: "idle" });
   const [shippingErrors, setShippingErrors] = useState<Partial<Record<keyof AddressDto, string>>>({});
@@ -33,22 +70,44 @@ export default function CheckoutPage() {
     if (authStatus === "anonymous") router.replace("/login?next=/checkout");
   }, [authStatus, router]);
 
+  useEffect(() => {
+    if (authStatus !== "authenticated") return;
+    let cancelled = false;
+    listAddresses()
+      .then((res) => {
+        if (cancelled) return;
+        setAddresses(res);
+        setShipping(initialShippingSelection(res));
+        setBilling(initialBillingSelection(res));
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setAddresses([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [authStatus]);
+
   const items = cart?.items ?? [];
   const isEmpty = items.length === 0;
 
   const submit = async (mode: "place" | "session") => {
-    const sErrors = validateAddress(shipping);
-    const bErrors = useSameAddress ? {} : validateAddress(billing);
+    const sErrors = shipping.kind === "inline" ? validateAddress(shipping.address) : {};
+    const bErrors = !useSameAddress && billing.kind === "inline" ? validateAddress(billing.address) : {};
     setShippingErrors(sErrors);
     setBillingErrors(bErrors);
     if (Object.keys(sErrors).length > 0 || Object.keys(bErrors).length > 0) return;
 
     setSubmission({ kind: "submitting", mode });
     try {
+      const resolvedShipping = await resolveSlot(shipping, { isDefaultShipping: addresses?.length === 0 });
+      const resolvedBilling = useSameAddress ? null : await resolveSlot(billing);
+
       if (mode === "place") {
         const order = await placeOrder({
-          shippingAddress: shipping,
-          billingAddress: useSameAddress ? null : billing,
+          shipping: resolvedShipping,
+          billing: resolvedBilling,
         });
         await clearCart().catch(() => {
           // backend already emptied the cart; ignore
@@ -60,8 +119,8 @@ export default function CheckoutPage() {
         // before handing them to Stripe (or the simulation provider), so we
         // don't have to know the id upfront.
         const session = await createCheckoutSession({
-          shippingAddress: shipping,
-          billingAddress: useSameAddress ? null : billing,
+          shipping: resolvedShipping,
+          billing: resolvedBilling,
           successUrl: `${origin}/checkout/success?order={ORDER_ID}`,
           cancelUrl: `${origin}/checkout/cancel?order={ORDER_ID}`,
         });
@@ -77,6 +136,10 @@ export default function CheckoutPage() {
           router.replace("/login?next=/checkout");
           return;
         }
+        if (err.status === 404) {
+          setSubmission({ kind: "error", message: "A saved address on file was removed. Pick another or enter a new one." });
+          return;
+        }
       }
       setSubmission({
         kind: "error",
@@ -85,7 +148,7 @@ export default function CheckoutPage() {
     }
   };
 
-  if (authStatus === "loading" || cartStatus === "loading" || cartStatus === "idle") {
+  if (authStatus === "loading" || cartStatus === "loading" || cartStatus === "idle" || addresses === null) {
     return (
       <div className="mx-auto max-w-5xl px-6 py-16 text-center text-[var(--muted)]">
         Loading checkout…
@@ -133,10 +196,14 @@ export default function CheckoutPage() {
         className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-10"
       >
         <div className="space-y-8">
-          <section>
-            <h2 className="text-lg font-medium mb-4">Shipping address</h2>
-            <AddressForm value={shipping} onChange={setShipping} prefix="ship" errors={shippingErrors} />
-          </section>
+          <AddressPicker
+            title="Shipping address"
+            addresses={addresses}
+            selection={shipping}
+            onChange={setShipping}
+            inlineErrors={shippingErrors}
+            idPrefix="ship"
+          />
 
           <section>
             <div className="flex items-center justify-between mb-4">
@@ -151,7 +218,14 @@ export default function CheckoutPage() {
               </label>
             </div>
             {!useSameAddress && (
-              <AddressForm value={billing} onChange={setBilling} prefix="bill" errors={billingErrors} />
+              <AddressPicker
+                title=""
+                addresses={addresses}
+                selection={billing}
+                onChange={setBilling}
+                inlineErrors={billingErrors}
+                idPrefix="bill"
+              />
             )}
           </section>
 
