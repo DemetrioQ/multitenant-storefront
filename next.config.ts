@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  output: "standalone",
   allowedDevOrigins: [
     "*.shop.lvh.me",
     "*.shop.demetrioq.com",
