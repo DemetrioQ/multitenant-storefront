@@ -26,7 +26,7 @@ export default function CheckoutSuccessPage() {
   // back from the payment provider, so `?order=<guid>` is always populated.
   const orderId = params.get("order");
   const { status: authStatus } = useAuth();
-  const { clear: clearCart } = useCart();
+  const { refresh: refreshCart } = useCart();
   const currency = useCurrency();
   const [state, setState] = useState<State>(() =>
     orderId ? { kind: "loading" } : { kind: "error", message: "Missing order reference." }
@@ -51,24 +51,10 @@ export default function CheckoutSuccessPage() {
     let cancelled = false;
     let attempts = 0;
 
-    let cartCleared = false;
     const poll = async () => {
       try {
         const order = await getOrder(orderId);
         if (cancelled) return;
-
-        // Landing on /checkout/success means the customer went through the
-        // payment step (cancel_url would have pointed them at /cancel). Clear
-        // the cart once on the first successful order fetch — unless the
-        // order is already canceled, in which case keep the cart so the
-        // customer can retry without rebuilding it.
-        if (!cartCleared && order.status !== "canceled") {
-          cartCleared = true;
-          clearCart().catch(() => {
-            // best-effort — webhook will eventually clear server-side anyway
-          });
-        }
-
         if (order.status === "pending" && attempts < MAX_ATTEMPTS) {
           attempts += 1;
           setState({ kind: "pending", order, attempts });
@@ -76,6 +62,7 @@ export default function CheckoutSuccessPage() {
           return;
         }
         setState({ kind: "ready", order });
+        refreshCart();
       } catch (err) {
         if (cancelled) return;
         if (err instanceof ApiError && err.status === 404) {
@@ -95,7 +82,7 @@ export default function CheckoutSuccessPage() {
       cancelled = true;
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
-  }, [orderId, authStatus, clearCart]);
+  }, [orderId, authStatus, refreshCart]);
 
   if (state.kind === "loading" || authStatus === "loading") {
     return (
