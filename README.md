@@ -1,7 +1,7 @@
 # saas-storefront
 
 Customer-facing storefront for the Shopify-esque SaaS platform. Sibling to
-`saas-dashboard` (merchant admin) and `saas-api` (backend).
+`saas-dashboard`[https://github.com/DemetrioQ/multitenant-dashboard/tree/main] (merchant admin) and `saas-api`[https://github.com/DemetrioQ/dotnet-multitenant-api] (backend).
 
 Next.js 16 App Router · React 19 · TypeScript · Tailwind v4 · Turbopack.
 
