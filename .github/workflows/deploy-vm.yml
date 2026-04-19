@@ -31,7 +31,6 @@ jobs:
           push: true
           tags: ghcr.io/demetrioq/saas-storefront:latest
           build-args: |
-            NEXT_PUBLIC_API_URL=https://saas-api.demetrioq.com
             NEXT_PUBLIC_STOREFRONT_HOST_SUFFIX=.shop.demetrioq.com
             NEXT_PUBLIC_DASHBOARD_URL=https://saas.demetrioq.com
           cache-from: type=gha
