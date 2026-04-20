@@ -74,7 +74,7 @@ export default async function HomePage() {
                 <div className="p-4">
                   <h3 className="font-medium text-sm">{p.name}</h3>
                   <p className="mt-1 text-sm text-[var(--muted)]">
-                    {p.stock === 0 ? "Out of stock" : formatPrice(p.price, store.currency)}
+                    {p.stock === 0 ? "Out of stock" : formatPrice(p.price)}
                   </p>
                 </div>
               </Link>

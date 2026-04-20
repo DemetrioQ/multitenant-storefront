@@ -19,8 +19,6 @@ export type ApiProductList = {
 export type ApiStore = {
   name: string;
   slug: string;
-  currency: string;
-  timezone: string;
   supportEmail: string | null;
   websiteUrl: string | null;
 };

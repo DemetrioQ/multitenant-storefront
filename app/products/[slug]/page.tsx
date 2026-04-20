@@ -101,7 +101,7 @@ export default async function ProductDetailPage({ params }: Props) {
             {outOfStock ? (
               <span className="text-[var(--muted)]">Out of stock</span>
             ) : (
-              <span className="font-medium">{formatPrice(product.price, store.currency)}</span>
+              <span className="font-medium">{formatPrice(product.price)}</span>
             )}
           </p>
           <p className="mt-6 text-[var(--foreground)] whitespace-pre-line leading-relaxed">

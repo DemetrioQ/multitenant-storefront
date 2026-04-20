@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/contexts/CartContext";
-import { useCurrency } from "@/contexts/StoreContext";
 import { formatPrice } from "@/lib/format";
 import { ApiError, type CartLineItem } from "@/lib/types";
 
@@ -13,7 +12,6 @@ export default function CartPage() {
   const router = useRouter();
   const { status: authStatus } = useAuth();
   const { cart, status, error, refresh, updateItem, removeItem, clear } = useCart();
-  const currency = useCurrency();
 
   useEffect(() => {
     if (authStatus === "anonymous") {
@@ -90,7 +88,7 @@ export default function CartPage() {
           <div className="mt-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-lg border border-[var(--border)] p-6">
             <div>
               <p className="text-sm text-[var(--muted)]">Subtotal ({cart?.totalItems ?? 0} items)</p>
-              <p className="text-2xl font-semibold">{formatPrice(cart?.subtotal ?? 0, currency)}</p>
+              <p className="text-2xl font-semibold">{formatPrice(cart?.subtotal ?? 0)}</p>
               <p className="mt-1 text-xs text-[var(--muted)]">
                 Taxes and shipping calculated at checkout.
               </p>
@@ -171,10 +169,10 @@ function CartLine({
               {item.productName}
             </Link>
             <p className="mt-0.5 text-sm text-[var(--muted)]">
-              {formatPrice(item.unitPrice, currency)} each
+              {formatPrice(item.unitPrice)} each
             </p>
           </div>
-          <p className="font-medium tabular-nums">{formatPrice(item.lineTotal, currency)}</p>
+          <p className="font-medium tabular-nums">{formatPrice(item.lineTotal)}</p>
         </div>
 
         <div className="mt-3 flex items-center gap-3">

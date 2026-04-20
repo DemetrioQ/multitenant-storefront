@@ -5,7 +5,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/contexts/CartContext";
-import { useCurrency } from "@/contexts/StoreContext";
 import { getOrder } from "@/lib/checkout";
 import { formatPrice } from "@/lib/format";
 import { ApiError, type OrderDto } from "@/lib/types";
@@ -27,7 +26,6 @@ export default function CheckoutSuccessPage() {
   const orderId = params.get("order");
   const { status: authStatus } = useAuth();
   const { refresh: refreshCart } = useCart();
-  const currency = useCurrency();
   const [state, setState] = useState<State>(() =>
     orderId ? { kind: "loading" } : { kind: "error", message: "Missing order reference." }
   );
@@ -133,7 +131,7 @@ export default function CheckoutSuccessPage() {
           <dt className="text-[var(--muted)]">Status</dt>
           <dd className="font-medium capitalize">{order.status}</dd>
           <dt className="text-[var(--muted)]">Total</dt>
-          <dd className="font-medium">{formatPrice(order.total, currency)}</dd>
+          <dd className="font-medium">{formatPrice(order.total)}</dd>
           <dt className="text-[var(--muted)]">Items</dt>
           <dd>{order.items.reduce((s, i) => s + i.quantity, 0)}</dd>
         </dl>

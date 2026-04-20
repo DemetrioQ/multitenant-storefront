@@ -106,7 +106,7 @@ export default async function ProductsPage({ searchParams }: Props) {
                     {p.stock === 0 ? (
                       <span className="text-[var(--muted)]">Out of stock</span>
                     ) : (
-                      <span className="font-medium">{formatPrice(p.price, store.currency)}</span>
+                      <span className="font-medium">{formatPrice(p.price)}</span>
                     )}
                   </p>
                 </div>

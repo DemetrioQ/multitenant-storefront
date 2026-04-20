@@ -5,7 +5,6 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { OrderStatusBadge } from "@/components/OrderStatusBadge";
 import { useAuth } from "@/contexts/AuthContext";
-import { useCurrency } from "@/contexts/StoreContext";
 import { getOrder } from "@/lib/checkout";
 import { parseUtcDate } from "@/lib/dates";
 import { formatPrice } from "@/lib/format";
@@ -22,7 +21,6 @@ export default function OrderDetailPage() {
   const params = useParams<{ id: string }>();
   const id = params.id;
   const { status: authStatus } = useAuth();
-  const currency = useCurrency();
   const [state, setState] = useState<State>({ kind: "loading" });
 
   useEffect(() => {
@@ -114,11 +112,11 @@ export default function OrderDetailPage() {
                     <p className="text-xs text-[var(--muted)]">SKU · {item.productSku}</p>
                   )}
                   <p className="mt-0.5 text-sm text-[var(--muted)]">
-                    {formatPrice(item.unitPrice, currency)} × {item.quantity}
+                    {formatPrice(item.unitPrice)} × {item.quantity}
                   </p>
                 </div>
                 <p className="font-medium tabular-nums whitespace-nowrap">
-                  {formatPrice(item.lineTotal, currency)}
+                  {formatPrice(item.lineTotal)}
                 </p>
               </li>
             ))}
@@ -127,11 +125,11 @@ export default function OrderDetailPage() {
           <div className="mt-6 rounded-lg border border-[var(--border)] p-5 space-y-2 text-sm">
             <div className="flex justify-between">
               <span className="text-[var(--muted)]">Subtotal</span>
-              <span className="tabular-nums">{formatPrice(order.subtotal, currency)}</span>
+              <span className="tabular-nums">{formatPrice(order.subtotal)}</span>
             </div>
             <div className="flex justify-between font-semibold border-t border-[var(--border)] pt-2">
               <span>Total</span>
-              <span className="tabular-nums">{formatPrice(order.total, currency)}</span>
+              <span className="tabular-nums">{formatPrice(order.total)}</span>
             </div>
           </div>
         </section>

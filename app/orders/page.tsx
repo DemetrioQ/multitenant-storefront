@@ -5,7 +5,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { OrderStatusBadge } from "@/components/OrderStatusBadge";
 import { useAuth } from "@/contexts/AuthContext";
-import { useCurrency } from "@/contexts/StoreContext";
 import { listOrders } from "@/lib/checkout";
 import { parseUtcDate } from "@/lib/dates";
 import { formatPrice } from "@/lib/format";
@@ -25,7 +24,6 @@ export default function OrdersPage() {
   const router = useRouter();
   const params = useSearchParams();
   const { status: authStatus } = useAuth();
-  const currency = useCurrency();
   const page = parsePage(params.get("page"));
   const pageSize = 20;
 
@@ -106,7 +104,7 @@ export default function OrdersPage() {
                     {o.itemCount} item{o.itemCount === 1 ? "" : "s"}
                   </p>
                   <p className="hidden sm:block text-sm font-medium tabular-nums">
-                    {formatPrice(o.total, currency)}
+                    {formatPrice(o.total)}
                   </p>
                   <OrderStatusBadge status={o.status} />
                 </Link>

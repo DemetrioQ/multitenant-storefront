@@ -7,7 +7,6 @@ import { AddressPicker, type AddressSelection } from "@/components/checkout/Addr
 import { emptyAddress, validateAddress } from "@/components/checkout/AddressForm";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/contexts/CartContext";
-import { useCurrency } from "@/contexts/StoreContext";
 import { createAddress, listAddresses } from "@/lib/addresses";
 import { createCheckoutSession, placeOrder } from "@/lib/checkout";
 import { formatPrice } from "@/lib/format";
@@ -52,7 +51,6 @@ export default function CheckoutPage() {
   const router = useRouter();
   const { status: authStatus } = useAuth();
   const { cart, status: cartStatus, refresh: refreshCart, clear: clearCart } = useCart();
-  const currency = useCurrency();
 
   const [addresses, setAddresses] = useState<CustomerAddressDto[] | null>(null);
   const [shipping, setShipping] = useState<AddressSelection>(() =>
@@ -243,13 +241,13 @@ export default function CheckoutPage() {
                   <p className="font-medium truncate">{item.productName}</p>
                   <p className="text-[var(--muted)]">× {item.quantity}</p>
                 </div>
-                <p className="tabular-nums whitespace-nowrap">{formatPrice(item.lineTotal, currency)}</p>
+                <p className="tabular-nums whitespace-nowrap">{formatPrice(item.lineTotal)}</p>
               </li>
             ))}
           </ul>
           <div className="border-t border-[var(--border)] pt-4 flex justify-between font-semibold">
             <span>Subtotal</span>
-            <span>{formatPrice(cart?.subtotal ?? 0, currency)}</span>
+            <span>{formatPrice(cart?.subtotal ?? 0)}</span>
           </div>
 
           <div className="flex flex-col gap-3 pt-2">

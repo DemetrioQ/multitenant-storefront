@@ -12,8 +12,3 @@ export function StoreProvider({ store, children }: { store: ApiStore | null; chi
 export function useStore(): ApiStore | null {
   return useContext(StoreContext);
 }
-
-export function useCurrency(fallback = "USD"): string {
-  const store = useStore();
-  return store?.currency ?? fallback;
-}
