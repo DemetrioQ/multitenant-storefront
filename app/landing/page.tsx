@@ -24,7 +24,7 @@ export default async function LandingPage() {
   const { stores, error } = await loadStores();
 
   return (
-    <div className="mx-auto max-w-5xl px-6 py-16">
+    <div className="mx-auto max-w-5xl px-4 sm:px-6 py-16">
       <section className="mb-16">
         <p className="text-xs uppercase tracking-widest text-[var(--muted)]">Portfolio project</p>
         <h1 className="mt-3 text-4xl sm:text-5xl font-semibold tracking-tight max-w-3xl">

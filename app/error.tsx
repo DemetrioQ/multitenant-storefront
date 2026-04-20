@@ -15,7 +15,7 @@ export default function SegmentError({
   }, [error]);
 
   return (
-    <div className="mx-auto max-w-xl px-6 py-16 text-center">
+    <div className="mx-auto max-w-xl px-4 sm:px-6 py-16 text-center">
       <p className="text-xs uppercase tracking-widest text-[var(--muted)]">Something went wrong</p>
       <h1 className="mt-3 text-3xl font-semibold tracking-tight">We hit a snag</h1>
       <p className="mt-4 text-sm text-[var(--muted)]">
@@ -28,13 +28,13 @@ export default function SegmentError({
         <button
           type="button"
           onClick={reset}
-          className="inline-flex items-center rounded-full bg-[var(--brand)] px-6 py-2.5 text-sm font-medium text-[var(--brand-contrast)] hover:opacity-90"
+          className="inline-flex items-center rounded-full bg-[var(--brand)] px-4 sm:px-6 py-2.5 text-sm font-medium text-[var(--brand-contrast)] hover:opacity-90"
         >
           Try again
         </button>
         <Link
           href="/"
-          className="inline-flex items-center rounded-full border border-[var(--border)] px-6 py-2.5 text-sm hover:border-[var(--brand)]"
+          className="inline-flex items-center rounded-full border border-[var(--border)] px-4 sm:px-6 py-2.5 text-sm hover:border-[var(--brand)]"
         >
           Back home
         </Link>

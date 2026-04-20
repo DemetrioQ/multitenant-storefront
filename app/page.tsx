@@ -24,7 +24,7 @@ export default async function HomePage() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-16">
+    <div className="mx-auto max-w-6xl px-4 sm:px-6 py-16">
       <section className="mb-16">
         <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl">
           Welcome to {store.name}
@@ -35,7 +35,7 @@ export default async function HomePage() {
         <div className="mt-8">
           <Link
             href="/products"
-            className="inline-flex items-center rounded-full bg-[var(--brand)] px-6 py-3 text-sm font-medium text-[var(--brand-contrast)] hover:opacity-90"
+            className="inline-flex items-center rounded-full bg-[var(--brand)] px-4 sm:px-6 py-3 text-sm font-medium text-[var(--brand-contrast)] hover:opacity-90"
           >
             Shop all products
           </Link>

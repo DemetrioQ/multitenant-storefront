@@ -95,7 +95,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <html lang="en" className={htmlClass}>
         <body className="min-h-full flex flex-col">
           <header className="border-b border-[var(--border)]">
-            <div className="mx-auto max-w-6xl px-6 py-4">
+            <div className="mx-auto max-w-6xl px-4 sm:px-6 py-4">
               <a href={bareHostUrl} className="text-lg font-semibold tracking-tight hover:underline">
                 SaaS API Portfolio
               </a>
@@ -121,7 +121,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
               <Header storeName={storeName} />
               <main className="flex-1">{children}</main>
               <footer className="border-t border-[var(--border)] mt-16">
-                <div className="mx-auto max-w-6xl px-6 py-8 text-sm text-[var(--muted)] flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="mx-auto max-w-6xl px-4 sm:px-6 py-8 text-sm text-[var(--muted)] flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                   <span>© {new Date().getFullYear()} {storeName}</span>
                   <div className="flex flex-wrap gap-4 items-center">
                     {store?.supportEmail && (

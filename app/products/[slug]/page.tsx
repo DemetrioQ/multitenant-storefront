@@ -65,7 +65,7 @@ export default async function ProductDetailPage({ params }: Props) {
   } catch (err) {
     if (err instanceof ApiError && err.status === 404) notFound();
     return (
-      <div className="mx-auto max-w-xl px-6 py-16 text-center">
+      <div className="mx-auto max-w-xl px-4 sm:px-6 py-16 text-center">
         <h1 className="text-2xl font-semibold">Can&apos;t load this product right now</h1>
         <p className="mt-3 text-sm text-[var(--muted)]">
           The backend is temporarily unreachable. Please try again shortly.
@@ -77,7 +77,7 @@ export default async function ProductDetailPage({ params }: Props) {
   const outOfStock = product.stock === 0;
 
   return (
-    <div className="mx-auto max-w-5xl px-6 py-12">
+    <div className="mx-auto max-w-5xl px-4 sm:px-6 py-12">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
         <div className="aspect-square rounded-lg overflow-hidden bg-[var(--border)]">
           {product.imageUrl ? (

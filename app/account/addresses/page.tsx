@@ -138,12 +138,12 @@ export default function AccountAddressesPage() {
   };
 
   if (authStatus === "loading" || list.kind === "loading") {
-    return <div className="mx-auto max-w-3xl px-6 py-16 text-center text-[var(--muted)]">Loading addresses…</div>;
+    return <div className="mx-auto max-w-3xl px-4 sm:px-6 py-16 text-center text-[var(--muted)]">Loading addresses…</div>;
   }
 
   if (list.kind === "error") {
     return (
-      <div className="mx-auto max-w-3xl px-6 py-16">
+      <div className="mx-auto max-w-3xl px-4 sm:px-6 py-16">
         <h1 className="text-3xl font-semibold">Saved addresses</h1>
         <p className="mt-4 text-red-600 dark:text-red-400">{list.message}</p>
       </div>
@@ -151,7 +151,7 @@ export default function AccountAddressesPage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-6 py-12">
+    <div className="mx-auto max-w-3xl px-4 sm:px-6 py-12">
       <div className="flex items-center justify-between mb-8">
         <div>
           <Link href="/orders" className="text-sm text-[var(--muted)] hover:underline">

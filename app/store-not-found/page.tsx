@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 
 export default function StoreNotFoundPage() {
   return (
-    <div className="mx-auto max-w-2xl px-6 py-24 text-center">
+    <div className="mx-auto max-w-2xl px-4 sm:px-6 py-24 text-center">
       <p className="text-xs uppercase tracking-widest text-[var(--muted)]">
         Unknown store
       </p>

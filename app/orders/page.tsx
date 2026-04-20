@@ -57,12 +57,12 @@ export default function OrdersPage() {
   }, [authStatus, page]);
 
   if (authStatus === "loading" || state.kind === "loading") {
-    return <div className="mx-auto max-w-4xl px-6 py-16 text-center text-[var(--muted)]">Loading orders…</div>;
+    return <div className="mx-auto max-w-4xl px-4 sm:px-6 py-16 text-center text-[var(--muted)]">Loading orders…</div>;
   }
 
   if (state.kind === "error") {
     return (
-      <div className="mx-auto max-w-4xl px-6 py-16">
+      <div className="mx-auto max-w-4xl px-4 sm:px-6 py-16">
         <h1 className="text-3xl font-semibold">Your orders</h1>
         <p className="mt-4 text-red-600 dark:text-red-400">{state.message}</p>
       </div>
@@ -73,7 +73,7 @@ export default function OrdersPage() {
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
 
   return (
-    <div className="mx-auto max-w-4xl px-6 py-12">
+    <div className="mx-auto max-w-4xl px-4 sm:px-6 py-12">
       <h1 className="text-3xl font-semibold tracking-tight">Your orders</h1>
       <p className="mt-2 text-sm text-[var(--muted)]">
         {totalCount === 0 ? "You haven't placed any orders yet." : `${totalCount} order${totalCount === 1 ? "" : "s"}`}
@@ -84,7 +84,7 @@ export default function OrdersPage() {
           <p className="text-[var(--muted)]">Nothing here yet.</p>
           <Link
             href="/products"
-            className="mt-6 inline-flex items-center rounded-full bg-[var(--brand)] px-6 py-2.5 text-sm font-medium text-[var(--brand-contrast)] hover:opacity-90"
+            className="mt-6 inline-flex items-center rounded-full bg-[var(--brand)] px-4 sm:px-6 py-2.5 text-sm font-medium text-[var(--brand-contrast)] hover:opacity-90"
           >
             Browse products
           </Link>

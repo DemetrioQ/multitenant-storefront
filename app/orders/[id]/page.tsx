@@ -55,17 +55,17 @@ export default function OrderDetailPage() {
   }, [authStatus, id]);
 
   if (authStatus === "loading" || state.kind === "loading") {
-    return <div className="mx-auto max-w-4xl px-6 py-16 text-center text-[var(--muted)]">Loading order…</div>;
+    return <div className="mx-auto max-w-4xl px-4 sm:px-6 py-16 text-center text-[var(--muted)]">Loading order…</div>;
   }
 
   if (state.kind === "missing") {
     return (
-      <div className="mx-auto max-w-xl px-6 py-16 text-center">
+      <div className="mx-auto max-w-xl px-4 sm:px-6 py-16 text-center">
         <h1 className="text-2xl font-semibold">Order not found</h1>
         <p className="mt-3 text-sm text-[var(--muted)]">
           We couldn&apos;t find that order on your account.
         </p>
-        <Link href="/orders" className="mt-6 inline-flex items-center rounded-full bg-[var(--brand)] px-6 py-2.5 text-sm font-medium text-[var(--brand-contrast)] hover:opacity-90">
+        <Link href="/orders" className="mt-6 inline-flex items-center rounded-full bg-[var(--brand)] px-4 sm:px-6 py-2.5 text-sm font-medium text-[var(--brand-contrast)] hover:opacity-90">
           Back to orders
         </Link>
       </div>
@@ -74,7 +74,7 @@ export default function OrderDetailPage() {
 
   if (state.kind === "error") {
     return (
-      <div className="mx-auto max-w-4xl px-6 py-16">
+      <div className="mx-auto max-w-4xl px-4 sm:px-6 py-16">
         <h1 className="text-3xl font-semibold">Order</h1>
         <p className="mt-4 text-red-600 dark:text-red-400">{state.message}</p>
       </div>
@@ -84,7 +84,7 @@ export default function OrderDetailPage() {
   const order = state.order;
 
   return (
-    <div className="mx-auto max-w-4xl px-6 py-12">
+    <div className="mx-auto max-w-4xl px-4 sm:px-6 py-12">
       <div className="mb-6">
         <Link href="/orders" className="text-sm text-[var(--muted)] hover:underline">
           ← All orders

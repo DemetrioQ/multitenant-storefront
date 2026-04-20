@@ -23,7 +23,7 @@ export default function CartPage() {
 
   if (authStatus === "loading" || status === "loading" || status === "idle") {
     return (
-      <div className="mx-auto max-w-4xl px-6 py-16 text-center text-[var(--muted)]">
+      <div className="mx-auto max-w-4xl px-4 sm:px-6 py-16 text-center text-[var(--muted)]">
         Loading your cart…
       </div>
     );
@@ -31,7 +31,7 @@ export default function CartPage() {
 
   if (status === "error") {
     return (
-      <div className="mx-auto max-w-4xl px-6 py-16">
+      <div className="mx-auto max-w-4xl px-4 sm:px-6 py-16">
         <h1 className="text-2xl font-semibold tracking-tight">Your cart</h1>
         <p className="mt-4 text-sm text-red-600 dark:text-red-400">{error ?? "Couldn't load cart."}</p>
         <button
@@ -49,7 +49,7 @@ export default function CartPage() {
   const isEmpty = items.length === 0;
 
   return (
-    <div className="mx-auto max-w-4xl px-6 py-12">
+    <div className="mx-auto max-w-4xl px-4 sm:px-6 py-12">
       <div className="flex items-baseline justify-between mb-8">
         <h1 className="text-3xl font-semibold tracking-tight">Your cart</h1>
         {!isEmpty && (
@@ -68,7 +68,7 @@ export default function CartPage() {
           <p className="text-[var(--muted)]">Your cart is empty.</p>
           <Link
             href="/products"
-            className="mt-6 inline-flex items-center rounded-full bg-[var(--brand)] px-6 py-2.5 text-sm font-medium text-[var(--brand-contrast)] hover:opacity-90"
+            className="mt-6 inline-flex items-center rounded-full bg-[var(--brand)] px-4 sm:px-6 py-2.5 text-sm font-medium text-[var(--brand-contrast)] hover:opacity-90"
           >
             Browse products
           </Link>

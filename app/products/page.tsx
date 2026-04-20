@@ -17,7 +17,7 @@ function clampInt(value: string | undefined, min: number, max: number, fallback:
 
 function ProductsUnavailable() {
   return (
-    <div className="mx-auto max-w-6xl px-6 py-12">
+    <div className="mx-auto max-w-6xl px-4 sm:px-6 py-12">
       <header className="mb-8">
         <h1 className="text-3xl font-semibold tracking-tight">Products</h1>
       </header>
@@ -62,7 +62,7 @@ export default async function ProductsPage({ searchParams }: Props) {
   const totalPages = Math.max(1, Math.ceil(data.totalCount / pageSize));
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-12">
+    <div className="mx-auto max-w-6xl px-4 sm:px-6 py-12">
       <header className="mb-8">
         <h1 className="text-3xl font-semibold tracking-tight">Products</h1>
         <p className="mt-2 text-[var(--muted)]">

@@ -150,7 +150,7 @@ export default function CheckoutPage() {
 
   if (authStatus === "loading" || cartStatus === "loading" || cartStatus === "idle" || addresses === null) {
     return (
-      <div className="mx-auto max-w-5xl px-6 py-16 text-center text-[var(--muted)]">
+      <div className="mx-auto max-w-5xl px-4 sm:px-6 py-16 text-center text-[var(--muted)]">
         Loading checkout…
       </div>
     );
@@ -158,7 +158,7 @@ export default function CheckoutPage() {
 
   if (cartStatus === "error") {
     return (
-      <div className="mx-auto max-w-5xl px-6 py-16">
+      <div className="mx-auto max-w-5xl px-4 sm:px-6 py-16">
         <h1 className="text-2xl font-semibold">Checkout</h1>
         <p className="mt-4 text-red-600 dark:text-red-400">Couldn&apos;t load your cart.</p>
         <button type="button" onClick={refreshCart} className="mt-4 rounded-md border border-[var(--border)] px-4 py-2 text-sm">
@@ -170,12 +170,12 @@ export default function CheckoutPage() {
 
   if (isEmpty) {
     return (
-      <div className="mx-auto max-w-xl px-6 py-16 text-center">
+      <div className="mx-auto max-w-xl px-4 sm:px-6 py-16 text-center">
         <h1 className="text-2xl font-semibold">Your cart is empty</h1>
         <p className="mt-2 text-sm text-[var(--muted)]">Add something to it before checking out.</p>
         <Link
           href="/products"
-          className="mt-6 inline-flex items-center rounded-full bg-[var(--brand)] px-6 py-2.5 text-sm font-medium text-[var(--brand-contrast)] hover:opacity-90"
+          className="mt-6 inline-flex items-center rounded-full bg-[var(--brand)] px-4 sm:px-6 py-2.5 text-sm font-medium text-[var(--brand-contrast)] hover:opacity-90"
         >
           Browse products
         </Link>
@@ -186,7 +186,7 @@ export default function CheckoutPage() {
   const submitting = submission.kind === "submitting";
 
   return (
-    <div className="mx-auto max-w-5xl px-6 py-12">
+    <div className="mx-auto max-w-5xl px-4 sm:px-6 py-12">
       <h1 className="text-3xl font-semibold tracking-tight mb-8">Checkout</h1>
       <form
         onSubmit={(e: FormEvent) => {
@@ -256,7 +256,7 @@ export default function CheckoutPage() {
             <button
               type="submit"
               disabled={submitting}
-              className="inline-flex items-center justify-center rounded-full bg-[var(--brand)] px-6 py-3 text-sm font-medium text-[var(--brand-contrast)] hover:opacity-90 disabled:opacity-50"
+              className="inline-flex items-center justify-center rounded-full bg-[var(--brand)] px-4 sm:px-6 py-3 text-sm font-medium text-[var(--brand-contrast)] hover:opacity-90 disabled:opacity-50"
             >
               {submission.kind === "submitting" && submission.mode === "session" ? "Redirecting…" : "Pay now"}
             </button>
@@ -264,7 +264,7 @@ export default function CheckoutPage() {
               type="button"
               disabled={submitting}
               onClick={() => submit("place")}
-              className="inline-flex items-center justify-center rounded-full border border-[var(--border)] px-6 py-3 text-sm font-medium hover:border-[var(--brand)] disabled:opacity-50"
+              className="inline-flex items-center justify-center rounded-full border border-[var(--border)] px-4 sm:px-6 py-3 text-sm font-medium hover:border-[var(--brand)] disabled:opacity-50"
             >
               {submission.kind === "submitting" && submission.mode === "place" ? "Placing…" : "Place order (pay later)"}
             </button>

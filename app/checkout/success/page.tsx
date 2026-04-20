@@ -86,7 +86,7 @@ export default function CheckoutSuccessPage() {
 
   if (state.kind === "loading" || authStatus === "loading") {
     return (
-      <div className="mx-auto max-w-xl px-6 py-16 text-center text-[var(--muted)]">
+      <div className="mx-auto max-w-xl px-4 sm:px-6 py-16 text-center text-[var(--muted)]">
         Confirming your order…
       </div>
     );
@@ -94,12 +94,12 @@ export default function CheckoutSuccessPage() {
 
   if (state.kind === "error") {
     return (
-      <div className="mx-auto max-w-xl px-6 py-16 text-center">
+      <div className="mx-auto max-w-xl px-4 sm:px-6 py-16 text-center">
         <h1 className="text-2xl font-semibold">Something&apos;s off</h1>
         <p className="mt-3 text-sm text-[var(--muted)]">{state.message}</p>
         <Link
           href="/orders"
-          className="mt-6 inline-flex items-center rounded-full bg-[var(--brand)] px-6 py-2.5 text-sm font-medium text-[var(--brand-contrast)] hover:opacity-90"
+          className="mt-6 inline-flex items-center rounded-full bg-[var(--brand)] px-4 sm:px-6 py-2.5 text-sm font-medium text-[var(--brand-contrast)] hover:opacity-90"
         >
           View your orders
         </Link>
@@ -111,7 +111,7 @@ export default function CheckoutSuccessPage() {
   const isPending = state.kind === "pending";
 
   return (
-    <div className="mx-auto max-w-2xl px-6 py-12">
+    <div className="mx-auto max-w-2xl px-4 sm:px-6 py-12">
       <div className="rounded-lg border border-[var(--border)] p-8">
         <p className="text-xs uppercase tracking-widest text-[var(--muted)]">
           {isPending ? "Awaiting payment confirmation" : "Order confirmed"}

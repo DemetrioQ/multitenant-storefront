@@ -8,7 +8,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           ← Back to store
         </Link>
       </div>
-      <div className="rounded-lg border border-[var(--border)] bg-[var(--background)] p-8 shadow-sm">
+      <div className="rounded-lg border border-[var(--border)] bg-[var(--background)] p-6 sm:p-8 shadow-sm">
         {children}
       </div>
     </div>
