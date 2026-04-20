@@ -78,7 +78,6 @@ export default function CartPage() {
               <CartLine
                 key={item.productId}
                 item={item}
-                currency={currency}
                 onUpdate={(qty) => updateItem(item.productId, qty)}
                 onRemove={() => removeItem(item.productId)}
               />
@@ -108,12 +107,10 @@ export default function CartPage() {
 
 function CartLine({
   item,
-  currency,
   onUpdate,
   onRemove,
 }: {
   item: CartLineItem;
-  currency: string;
   onUpdate: (quantity: number) => Promise<unknown>;
   onRemove: () => Promise<unknown>;
 }) {
