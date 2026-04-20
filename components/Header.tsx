@@ -43,7 +43,7 @@ export function Header({ storeName }: Props) {
   );
 
   return (
-    <header className="border-b border-[var(--border)] relative">
+    <header className="sticky top-0 z-30 bg-[var(--background)] border-b border-[var(--border)]">
       <div className="mx-auto max-w-6xl flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 gap-3">
         <Link href="/" className="text-base sm:text-lg font-semibold tracking-tight truncate">
           {storeName}
