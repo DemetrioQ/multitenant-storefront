@@ -57,33 +57,16 @@ body {
   }
 }
 
-*,
-*::before,
-*::after {
+/* Disable text selection on UI chrome where dragging would be a misclick.
+   Body content (product names, descriptions, prices) keeps the browser
+   default of `user-select: auto`, so users can copy text and the cursor
+   doesn't snap to the nearest text element when clicking in empty regions. */
+button,
+a,
+[role="button"],
+nav,
+header,
+.select-none {
   -webkit-user-select: none;
   user-select: none;
-}
-
-p,
-li,
-td,
-th,
-code,
-pre,
-h1,
-h2,
-h3,
-h4,
-h5,
-h6,
-label,
-input,
-textarea,
-select,
-[contenteditable="true"],
-[contenteditable=""],
-.select-text,
-[data-selectable] {
-  -webkit-user-select: text;
-  user-select: text;
 }
