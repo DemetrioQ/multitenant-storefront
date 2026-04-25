@@ -1,6 +1,6 @@
 import { headers } from "next/headers";
 import { cache } from "react";
-import { extractSlugFromHost } from "./config";
+import { extractSlugFromHost, isKnownSuffix } from "./config";
 import {
   ApiError,
   type ApiProblemDetails,
@@ -20,6 +20,15 @@ async function resolveBase(): Promise<{ url: string; slug: string | null; overri
   const override = process.env.NEXT_PUBLIC_API_URL?.trim();
   if (override) {
     return { url: override.replace(/\/$/, ""), slug, override: true };
+  }
+  // SECURITY: when no override is configured, the SSR fetch base is built from
+  // the request Host header. If the Next process is ever exposed without a host-
+  // pinning reverse proxy in front, an attacker-controlled Host turns this into
+  // an SSRF primitive. proxy.ts already enforces the suffix shape on incoming
+  // requests, but its matcher excludes /api routes — re-validate here so the
+  // SSR fetcher refuses to call out to anything that isn't a known tenant host.
+  if (!isKnownSuffix(host)) {
+    throw new ApiError(0, "Refusing SSR fetch: request Host did not match a known tenant suffix.");
   }
   const proto = h.get("x-forwarded-proto") ?? "http";
   return { url: `${proto}://${host}`, slug, override: false };
