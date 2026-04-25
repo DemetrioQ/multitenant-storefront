@@ -27,10 +27,24 @@ function useCooldown(target: Date | null) {
   return Math.max(0, Math.ceil((target.getTime() - now) / 1000));
 }
 
+/**
+ * Whitelist `?next=` to same-origin paths only. Prevents open-redirect / phishing
+ * where a malicious link `?next=https://evil.example.com` lands a victim on the real
+ * login page then bounces them off-site after a successful auth.
+ *
+ * Accept only paths starting with a single `/` (rejects schemes, protocol-relative
+ * `//evil.com`, and absolute URLs).
+ */
+function safeNext(raw: string | null): string {
+  if (!raw) return "/";
+  if (!raw.startsWith("/") || raw.startsWith("//") || raw.startsWith("/\\")) return "/";
+  return raw;
+}
+
 export default function LoginPage() {
   const router = useRouter();
   const params = useSearchParams();
-  const redirectTo = params.get("next") ?? "/";
+  const redirectTo = safeNext(params.get("next"));
   const { login, status } = useAuth();
 
   const [email, setEmail] = useState("");
