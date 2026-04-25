@@ -111,6 +111,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
     applyToken(null);
     if (refreshTimeoutRef.current) clearTimeout(refreshTimeoutRef.current);
+    // Notify other tabs of this same origin so they also drop their in-memory
+    // token. The "storage" event only fires in OTHER tabs, never the one that
+    // wrote the key — so this is safe to do unconditionally.
+    try {
+      localStorage.setItem("storefront:auth-logout", String(Date.now()));
+      localStorage.removeItem("storefront:auth-logout");
+    } catch {
+      // localStorage can throw (private mode, quota) — cross-tab sync is best-effort.
+    }
   }, [applyToken]);
 
   useEffect(() => {
