@@ -3,16 +3,12 @@ import { NextResponse } from "next/server";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL?.trim().replace(/\/$/, "") ?? "";
 
-// Node doesn't read the Windows cert store by default, so even after
-// `dotnet dev-certs https --trust` it'll reject self-signed certs from fetch.
-// Opt out of verification in dev when pointing at an https backend.
-if (
-  process.env.NODE_ENV !== "production" &&
-  BACKEND_URL.startsWith("https://") &&
-  process.env.NODE_TLS_REJECT_UNAUTHORIZED !== "0"
-) {
-  process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
-}
+// Dev TLS-verification opt-out for the self-signed ASP.NET cert lives in
+// `instrumentation.ts` (Next's documented startup hook). It is intentionally
+// NOT mirrored here — mutating NODE_TLS_REJECT_UNAUTHORIZED at module load
+// from a route file is dangerous because importing this module from a
+// misconfigured test/build (where NODE_ENV defaults to "development") would
+// silently disable TLS verification process-wide.
 
 // Strip these from incoming request headers — Host is derived from the target
 // URL, content-length is recomputed by fetch, and Next-* are internal.
