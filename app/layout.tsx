@@ -11,6 +11,7 @@ import { Header } from "@/components/Header";
 import { LandingHeader } from "@/components/LandingHeader";
 import { LandingFooter } from "@/components/LandingFooter";
 import { StoreUnavailableScreen } from "@/components/StoreUnavailableScreen";
+import { ToastProvider } from "@/components/ui";
 import "./globals.css";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
@@ -69,7 +70,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const h = await headers();
   const host = h.get("host");
   const bare = isBareHost(host);
-  const proto = h.get("x-forwarded-proto") ?? (process.env.NODE_ENV === "production" ? "https:" : "http:");
+  const proto =
+    h.get("x-forwarded-proto") ?? (process.env.NODE_ENV === "production" ? "https:" : "http:");
   const bareHostUrl = getBareHostUrl(proto.endsWith(":") ? proto : `${proto}:`);
 
   const htmlClass = `${geistSans.variable} ${geistMono.variable} h-full antialiased`;
@@ -96,7 +98,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <body className="min-h-full flex flex-col">
           <header className="border-b border-[var(--border)]">
             <div className="mx-auto max-w-6xl px-4 sm:px-6 py-4">
-              <a href={bareHostUrl} className="text-lg font-semibold tracking-tight hover:underline">
+              <a
+                href={bareHostUrl}
+                className="text-lg font-semibold tracking-tight hover:underline"
+              >
                 SaaS API Portfolio
               </a>
             </div>
@@ -118,33 +123,42 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <StoreProvider store={store}>
           <AuthProvider>
             <CartProvider>
-              <Header storeName={storeName} />
-              <main className="flex-1">{children}</main>
-              <footer className="border-t border-[var(--border)] mt-16">
-                <div className="mx-auto max-w-6xl px-4 sm:px-6 py-8 text-sm text-[var(--muted)] flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                  <span>© {new Date().getFullYear()} {storeName}</span>
-                  <div className="flex flex-wrap gap-4 items-center">
-                    {store?.supportEmail && (
-                      <a href={`mailto:${store.supportEmail}`} className="hover:underline">
-                        {store.supportEmail}
+              <ToastProvider>
+                <Header storeName={storeName} />
+                <main className="flex-1">{children}</main>
+                <footer className="border-t border-[var(--border)] mt-16">
+                  <div className="mx-auto max-w-6xl px-4 sm:px-6 py-8 text-sm text-[var(--muted)] flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <span>
+                      © {new Date().getFullYear()} {storeName}
+                    </span>
+                    <div className="flex flex-wrap gap-4 items-center">
+                      {store?.supportEmail && (
+                        <a href={`mailto:${store.supportEmail}`} className="hover:underline">
+                          {store.supportEmail}
+                        </a>
+                      )}
+                      {store?.websiteUrl && (
+                        <a
+                          href={store.websiteUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="hover:underline"
+                        >
+                          Website
+                        </a>
+                      )}
+                      <a
+                        href={bareHostUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs text-[var(--muted)]/80 hover:underline"
+                      >
+                        Powered by SaaS API Portfolio
                       </a>
-                    )}
-                    {store?.websiteUrl && (
-                      <a href={store.websiteUrl} target="_blank" rel="noreferrer" className="hover:underline">
-                        Website
-                      </a>
-                    )}
-                    <a
-                      href={bareHostUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-xs text-[var(--muted)]/80 hover:underline"
-                    >
-                      Powered by SaaS API Portfolio
-                    </a>
+                    </div>
                   </div>
-                </div>
-              </footer>
+                </footer>
+              </ToastProvider>
             </CartProvider>
           </AuthProvider>
         </StoreProvider>

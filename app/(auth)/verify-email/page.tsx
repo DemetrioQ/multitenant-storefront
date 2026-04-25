@@ -4,14 +4,12 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState, type FormEvent } from "react";
 import { AuthField } from "@/components/auth/AuthField";
+import { Button } from "@/components/ui";
 import { useStore } from "@/contexts/StoreContext";
 import { resendVerification, verifyEmail } from "@/lib/auth";
 import { ApiError } from "@/lib/types";
 
-type State =
-  | { kind: "verifying" }
-  | { kind: "success" }
-  | { kind: "error"; message: string };
+type State = { kind: "verifying" } | { kind: "success" } | { kind: "error"; message: string };
 
 type ResendState =
   | { kind: "idle" }
@@ -26,7 +24,7 @@ export default function VerifyEmailPage() {
   const storeName = store?.name ?? "the store";
 
   const [state, setState] = useState<State>(() =>
-    token ? { kind: "verifying" } : { kind: "error", message: "Missing verification token." }
+    token ? { kind: "verifying" } : { kind: "error", message: "Missing verification token." },
   );
   const [email, setEmail] = useState("");
   const [resend, setResend] = useState<ResendState>({ kind: "idle" });
@@ -44,7 +42,10 @@ export default function VerifyEmailPage() {
           setState({ kind: "error", message: "This verification link is invalid or has expired." });
           return;
         }
-        setState({ kind: "error", message: err instanceof Error ? err.message : "Verification failed." });
+        setState({
+          kind: "error",
+          message: err instanceof Error ? err.message : "Verification failed.",
+        });
       }
     })();
     return () => {
@@ -62,7 +63,8 @@ export default function VerifyEmailPage() {
     } catch (err) {
       setResend({
         kind: "error",
-        message: err instanceof ApiError ? err.message : "Couldn't send the email. Try again shortly.",
+        message:
+          err instanceof ApiError ? err.message : "Couldn't send the email. Try again shortly.",
       });
     }
   };
@@ -71,7 +73,7 @@ export default function VerifyEmailPage() {
     return (
       <>
         <h1 className="text-2xl font-semibold tracking-tight">Verifying your email…</h1>
-        <p className="mt-3 text-sm text-[var(--muted)]">Hang tight for a moment.</p>
+        <p className="mt-3 text-sm text-muted">Hang tight for a moment.</p>
       </>
     );
   }
@@ -80,15 +82,12 @@ export default function VerifyEmailPage() {
     return (
       <>
         <h1 className="text-2xl font-semibold tracking-tight">Welcome to {storeName}!</h1>
-        <p className="mt-3 text-sm text-[var(--muted)]">
+        <p className="mt-3 text-sm text-muted">
           Your email is confirmed. You can now sign in to start shopping.
         </p>
-        <Link
-          href="/login"
-          className="mt-6 inline-flex items-center justify-center rounded-full bg-[var(--brand)] px-6 py-2.5 text-sm font-medium text-[var(--brand-contrast)] hover:opacity-90"
-        >
-          Go to sign in
-        </Link>
+        <Button asChild size="pill" className="mt-6">
+          <Link href="/login">Go to sign in</Link>
+        </Button>
       </>
     );
   }
@@ -97,16 +96,13 @@ export default function VerifyEmailPage() {
     return (
       <>
         <h1 className="text-2xl font-semibold tracking-tight">Check your email</h1>
-        <p className="mt-3 text-sm text-[var(--muted)]">
-          If an account exists for <strong className="text-[var(--foreground)]">{email}</strong>, we sent a
+        <p className="mt-3 text-sm text-muted">
+          If an account exists for <strong className="text-foreground">{email}</strong>, we sent a
           new verification link. It may take a minute to arrive.
         </p>
-        <Link
-          href="/login"
-          className="mt-6 inline-flex items-center justify-center rounded-full bg-[var(--brand)] px-6 py-2.5 text-sm font-medium text-[var(--brand-contrast)] hover:opacity-90"
-        >
-          Back to sign in
-        </Link>
+        <Button asChild size="pill" className="mt-6">
+          <Link href="/login">Back to sign in</Link>
+        </Button>
       </>
     );
   }
@@ -114,9 +110,12 @@ export default function VerifyEmailPage() {
   return (
     <>
       <h1 className="text-2xl font-semibold tracking-tight">Verification failed</h1>
-      <p className="mt-3 text-sm text-[var(--muted)]">{state.message}</p>
+      <p className="mt-3 text-sm text-muted">{state.message}</p>
 
-      <form onSubmit={handleResend} className="mt-6 flex flex-col gap-3 rounded-md border border-[var(--border)] p-4">
+      <form
+        onSubmit={handleResend}
+        className="mt-6 flex flex-col gap-3 rounded-md border border-border p-4"
+      >
         <p className="text-sm font-medium">Send a new verification link</p>
         <AuthField
           label="Email"
@@ -129,17 +128,18 @@ export default function VerifyEmailPage() {
         {resend.kind === "error" && (
           <p className="text-xs text-red-600 dark:text-red-400">{resend.message}</p>
         )}
-        <button
+        <Button
           type="submit"
+          size="pill"
+          className="px-5 py-2"
           disabled={resend.kind === "submitting" || !email.trim()}
-          className="inline-flex items-center justify-center rounded-full bg-[var(--brand)] px-5 py-2 text-sm font-medium text-[var(--brand-contrast)] hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {resend.kind === "submitting" ? "Sending…" : "Send new link"}
-        </button>
+        </Button>
       </form>
 
       <p className="mt-4 text-center text-sm">
-        <Link href="/login" className="text-[var(--muted)] hover:underline">
+        <Link href="/login" className="text-muted hover:underline">
           Back to sign in
         </Link>
       </p>

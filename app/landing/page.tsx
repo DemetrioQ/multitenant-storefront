@@ -31,10 +31,9 @@ export default async function LandingPage() {
           A multi-tenant storefront platform
         </h1>
         <p className="mt-5 max-w-2xl text-lg text-[var(--muted)] leading-relaxed">
-          This is a Shopify-for-X demo: one backend serves many independent stores,
-          each at their own subdomain. Merchants manage products, orders, and
-          customers from a shared dashboard; shoppers browse and check out on the
-          per-store frontend you&apos;re visiting below.
+          This is a Shopify-for-X demo: one backend serves many independent stores, each at their
+          own subdomain. Merchants manage products, orders, and customers from a shared dashboard;
+          shoppers browse and check out on the per-store frontend you&apos;re visiting below.
         </p>
       </section>
 
@@ -50,7 +49,8 @@ export default async function LandingPage() {
 
         {error ? (
           <div className="rounded-lg border border-dashed border-[var(--border)] p-8 text-sm text-[var(--muted)]">
-            Couldn&apos;t load the store directory right now. The backend may be warming up — try again in a moment.
+            Couldn&apos;t load the store directory right now. The backend may be warming up — try
+            again in a moment.
           </div>
         ) : stores.length === 0 ? (
           <div className="rounded-lg border border-dashed border-[var(--border)] p-8 text-sm text-[var(--muted)]">
@@ -69,9 +69,7 @@ export default async function LandingPage() {
                   <p className="text-xs uppercase tracking-wide text-[var(--muted)] font-mono">
                     {store.slug}
                   </p>
-                  <p className="mt-2 text-lg font-medium group-hover:underline">
-                    {store.name}
-                  </p>
+                  <p className="mt-2 text-lg font-medium group-hover:underline">{store.name}</p>
                   <p className="mt-3 text-xs text-[var(--muted)] truncate">
                     Visit {store.storeUrl.replace(/^https?:\/\//, "")} →
                   </p>
@@ -99,7 +97,12 @@ export default async function LandingPage() {
           <dd>Oracle Cloud ARM VM · Caddy · Docker</dd>
         </dl>
         <p className="mt-6 text-xs text-[var(--muted)]">
-          <Link href="https://github.com/demetrioq" target="_blank" rel="noopener noreferrer" className="underline">
+          <Link
+            href="https://github.com/demetrioq"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline"
+          >
             Source on GitHub
           </Link>
         </p>

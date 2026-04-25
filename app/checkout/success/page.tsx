@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { Button, Card } from "@/components/ui";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/contexts/CartContext";
 import { getOrder } from "@/lib/checkout";
@@ -27,7 +28,7 @@ export default function CheckoutSuccessPage() {
   const { status: authStatus } = useAuth();
   const { refresh: refreshCart } = useCart();
   const [state, setState] = useState<State>(() =>
-    orderId ? { kind: "loading" } : { kind: "error", message: "Missing order reference." }
+    orderId ? { kind: "loading" } : { kind: "error", message: "Missing order reference." },
   );
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -84,7 +85,7 @@ export default function CheckoutSuccessPage() {
 
   if (state.kind === "loading" || authStatus === "loading") {
     return (
-      <div className="mx-auto max-w-xl px-4 sm:px-6 py-16 text-center text-[var(--muted)]">
+      <div className="mx-auto max-w-xl px-4 sm:px-6 py-16 text-center text-muted">
         Confirming your order…
       </div>
     );
@@ -94,13 +95,10 @@ export default function CheckoutSuccessPage() {
     return (
       <div className="mx-auto max-w-xl px-4 sm:px-6 py-16 text-center">
         <h1 className="text-2xl font-semibold">Something&apos;s off</h1>
-        <p className="mt-3 text-sm text-[var(--muted)]">{state.message}</p>
-        <Link
-          href="/orders"
-          className="mt-6 inline-flex items-center rounded-full bg-[var(--brand)] px-4 sm:px-6 py-2.5 text-sm font-medium text-[var(--brand-contrast)] hover:opacity-90"
-        >
-          View your orders
-        </Link>
+        <p className="mt-3 text-sm text-muted">{state.message}</p>
+        <Button asChild size="pill" className="mt-6">
+          <Link href="/orders">View your orders</Link>
+        </Button>
       </div>
     );
   }
@@ -110,47 +108,42 @@ export default function CheckoutSuccessPage() {
 
   return (
     <div className="mx-auto max-w-2xl px-4 sm:px-6 py-12">
-      <div className="rounded-lg border border-[var(--border)] p-8">
-        <p className="text-xs uppercase tracking-widest text-[var(--muted)]">
+      <Card className="p-8">
+        <p className="text-xs uppercase tracking-widest text-muted">
           {isPending ? "Awaiting payment confirmation" : "Order confirmed"}
         </p>
         <h1 className="mt-2 text-3xl font-semibold tracking-tight">
           {isPending ? "Hold tight…" : "Thanks for your order"}
         </h1>
-        <p className="mt-2 text-[var(--muted)]">
+        <p className="mt-2 text-muted">
           Order <span className="font-mono">{order.number}</span>
         </p>
 
         {isPending && (
-          <p className="mt-4 text-sm text-[var(--muted)]">
-            Your payment is finalizing. This page will update automatically. (Attempt {state.attempts}/{MAX_ATTEMPTS})
+          <p className="mt-4 text-sm text-muted">
+            Your payment is finalizing. This page will update automatically. (Attempt{" "}
+            {state.attempts}/{MAX_ATTEMPTS})
           </p>
         )}
 
         <dl className="mt-6 grid grid-cols-2 gap-3 text-sm">
-          <dt className="text-[var(--muted)]">Status</dt>
+          <dt className="text-muted">Status</dt>
           <dd className="font-medium capitalize">{order.status}</dd>
-          <dt className="text-[var(--muted)]">Total</dt>
+          <dt className="text-muted">Total</dt>
           <dd className="font-medium">{formatPrice(order.total)}</dd>
-          <dt className="text-[var(--muted)]">Items</dt>
+          <dt className="text-muted">Items</dt>
           <dd>{order.items.reduce((s, i) => s + i.quantity, 0)}</dd>
         </dl>
 
         <div className="mt-8 flex gap-3">
-          <Link
-            href={`/orders/${order.id}`}
-            className="inline-flex items-center rounded-full bg-[var(--brand)] px-5 py-2.5 text-sm font-medium text-[var(--brand-contrast)] hover:opacity-90"
-          >
-            View order details
-          </Link>
-          <Link
-            href="/products"
-            className="inline-flex items-center rounded-full border border-[var(--border)] px-5 py-2.5 text-sm hover:border-[var(--brand)]"
-          >
-            Keep shopping
-          </Link>
+          <Button asChild size="pill" className="px-5">
+            <Link href={`/orders/${order.id}`}>View order details</Link>
+          </Button>
+          <Button asChild variant="outline" size="pill" className="px-5">
+            <Link href="/products">Keep shopping</Link>
+          </Button>
         </div>
-      </div>
+      </Card>
     </div>
   );
 }

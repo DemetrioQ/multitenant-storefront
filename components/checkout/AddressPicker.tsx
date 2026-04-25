@@ -1,6 +1,7 @@
 "use client";
 
 import { AddressForm } from "./AddressForm";
+import { Badge as BadgePrimitive, Input } from "@/components/ui";
 import type { AddressDto, CustomerAddressDto } from "@/lib/types";
 
 export type AddressSelection =
@@ -25,7 +26,22 @@ function formatAddress(a: CustomerAddressDto): string {
   return parts.join(" · ");
 }
 
-export function AddressPicker({ title, addresses, selection, onChange, inlineErrors, idPrefix }: Props) {
+function DefaultBadge({ children }: { children: React.ReactNode }) {
+  return (
+    <BadgePrimitive className="text-[10px] uppercase tracking-wide text-muted">
+      {children}
+    </BadgePrimitive>
+  );
+}
+
+export function AddressPicker({
+  title,
+  addresses,
+  selection,
+  onChange,
+  inlineErrors,
+  idPrefix,
+}: Props) {
   const pickSaved = (id: string) => onChange({ kind: "saved", id });
   const useNew = () =>
     onChange({
@@ -46,7 +62,7 @@ export function AddressPicker({ title, addresses, selection, onChange, inlineErr
               <li key={a.id}>
                 <label
                   className={`flex items-start gap-3 rounded-lg border p-4 cursor-pointer transition-colors ${
-                    checked ? "border-[var(--brand)] bg-[var(--brand)]/5" : "border-[var(--border)] hover:border-[var(--brand)]/60"
+                    checked ? "border-brand bg-brand/5" : "border-border hover:border-brand/60"
                   }`}
                 >
                   <input
@@ -59,10 +75,10 @@ export function AddressPicker({ title, addresses, selection, onChange, inlineErr
                   <div className="flex-1 min-w-0">
                     <div className="flex flex-wrap items-center gap-2 mb-1">
                       {a.label && <span className="font-medium">{a.label}</span>}
-                      {a.isDefaultShipping && <Badge>Default shipping</Badge>}
-                      {a.isDefaultBilling && <Badge>Default billing</Badge>}
+                      {a.isDefaultShipping && <DefaultBadge>Default shipping</DefaultBadge>}
+                      {a.isDefaultBilling && <DefaultBadge>Default billing</DefaultBadge>}
                     </div>
-                    <p className="text-sm text-[var(--muted)]">{formatAddress(a)}</p>
+                    <p className="text-sm text-muted">{formatAddress(a)}</p>
                   </div>
                 </label>
               </li>
@@ -74,8 +90,8 @@ export function AddressPicker({ title, addresses, selection, onChange, inlineErr
       <label
         className={`flex items-start gap-3 rounded-lg border p-4 cursor-pointer transition-colors ${
           selection.kind === "inline"
-            ? "border-[var(--brand)] bg-[var(--brand)]/5"
-            : "border-[var(--border)] hover:border-[var(--brand)]/60"
+            ? "border-brand bg-brand/5"
+            : "border-border hover:border-brand/60"
         }`}
       >
         <input
@@ -93,14 +109,14 @@ export function AddressPicker({ title, addresses, selection, onChange, inlineErr
       </label>
 
       {selection.kind === "inline" && (
-        <div className="mt-4 space-y-4 rounded-lg border border-[var(--border)] p-4">
+        <div className="mt-4 space-y-4 rounded-lg border border-border p-4">
           <AddressForm
             value={selection.address}
             onChange={(address) => onChange({ ...selection, address })}
             prefix={idPrefix}
             errors={inlineErrors}
           />
-          <div className="pt-2 border-t border-[var(--border)] flex flex-col gap-3">
+          <div className="pt-2 border-t border-border flex flex-col gap-3">
             <label className="flex items-center gap-2 text-sm">
               <input
                 type="checkbox"
@@ -110,26 +126,17 @@ export function AddressPicker({ title, addresses, selection, onChange, inlineErr
               Save this address for next time
             </label>
             {selection.save && (
-              <input
+              <Input
                 type="text"
                 placeholder="Label (optional, e.g. Home, Office)"
                 maxLength={50}
                 value={selection.label}
                 onChange={(e) => onChange({ ...selection, label: e.target.value })}
-                className="rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm outline-none focus:border-[var(--brand)]"
               />
             )}
           </div>
         </div>
       )}
     </section>
-  );
-}
-
-function Badge({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="inline-flex items-center rounded-full border border-[var(--border)] px-2 py-0.5 text-[10px] uppercase tracking-wide text-[var(--muted)]">
-      {children}
-    </span>
   );
 }

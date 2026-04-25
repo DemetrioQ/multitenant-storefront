@@ -1,6 +1,7 @@
 "use client";
 
 import { forwardRef, type InputHTMLAttributes } from "react";
+import { Input, Label } from "@/components/ui";
 
 type Props = InputHTMLAttributes<HTMLInputElement> & {
   label: string;
@@ -9,23 +10,19 @@ type Props = InputHTMLAttributes<HTMLInputElement> & {
 };
 
 export const AuthField = forwardRef<HTMLInputElement, Props>(function AuthField(
-  { label, error, hint, id, className = "", ...rest },
-  ref
+  { label, error, hint, id, className, ...rest },
+  ref,
 ) {
   const inputId = id ?? `field-${label.toLowerCase().replace(/\s+/g, "-")}`;
   return (
     <div className="flex flex-col gap-1">
-      <label htmlFor={inputId} className="text-sm font-medium">
-        {label}
-      </label>
-      <input
+      <Label htmlFor={inputId}>{label}</Label>
+      <Input
         ref={ref}
         id={inputId}
-        className={`rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm outline-none transition-colors focus:border-[var(--brand)] ${
-          error ? "border-red-500 focus:border-red-500" : ""
-        } ${className}`}
-        aria-invalid={!!error}
+        error={!!error}
         aria-describedby={error ? `${inputId}-error` : hint ? `${inputId}-hint` : undefined}
+        className={className}
         {...rest}
       />
       {error ? (
@@ -33,7 +30,7 @@ export const AuthField = forwardRef<HTMLInputElement, Props>(function AuthField(
           {error}
         </p>
       ) : hint ? (
-        <p id={`${inputId}-hint`} className="text-xs text-[var(--muted)]">
+        <p id={`${inputId}-hint`} className="text-xs text-muted">
           {hint}
         </p>
       ) : null}

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { OrderStatusBadge } from "@/components/OrderStatusBadge";
+import { Button, Card } from "@/components/ui";
 import { useAuth } from "@/contexts/AuthContext";
 import { getOrder } from "@/lib/checkout";
 import { parseUtcDate } from "@/lib/dates";
@@ -53,19 +54,21 @@ export default function OrderDetailPage() {
   }, [authStatus, id]);
 
   if (authStatus === "loading" || state.kind === "loading") {
-    return <div className="mx-auto max-w-4xl px-4 sm:px-6 py-16 text-center text-[var(--muted)]">Loading order…</div>;
+    return (
+      <div className="mx-auto max-w-4xl px-4 sm:px-6 py-16 text-center text-muted">
+        Loading order…
+      </div>
+    );
   }
 
   if (state.kind === "missing") {
     return (
       <div className="mx-auto max-w-xl px-4 sm:px-6 py-16 text-center">
         <h1 className="text-2xl font-semibold">Order not found</h1>
-        <p className="mt-3 text-sm text-[var(--muted)]">
-          We couldn&apos;t find that order on your account.
-        </p>
-        <Link href="/orders" className="mt-6 inline-flex items-center rounded-full bg-[var(--brand)] px-4 sm:px-6 py-2.5 text-sm font-medium text-[var(--brand-contrast)] hover:opacity-90">
-          Back to orders
-        </Link>
+        <p className="mt-3 text-sm text-muted">We couldn&apos;t find that order on your account.</p>
+        <Button asChild size="pill" className="mt-6">
+          <Link href="/orders">Back to orders</Link>
+        </Button>
       </div>
     );
   }
@@ -84,14 +87,14 @@ export default function OrderDetailPage() {
   return (
     <div className="mx-auto max-w-4xl px-4 sm:px-6 py-12">
       <div className="mb-6">
-        <Link href="/orders" className="text-sm text-[var(--muted)] hover:underline">
+        <Link href="/orders" className="text-sm text-muted hover:underline">
           ← All orders
         </Link>
       </div>
       <div className="flex items-start justify-between gap-4 mb-8">
         <div>
           <h1 className="text-3xl font-semibold tracking-tight font-mono">{order.number}</h1>
-          <p className="mt-1 text-sm text-[var(--muted)]">
+          <p className="mt-1 text-sm text-muted">
             Placed {parseUtcDate(order.createdAt).toLocaleString()}
           </p>
         </div>
@@ -101,17 +104,18 @@ export default function OrderDetailPage() {
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-10">
         <section>
           <h2 className="text-lg font-medium mb-3">Items</h2>
-          <ul className="divide-y divide-[var(--border)] rounded-lg border border-[var(--border)]">
+          <ul className="divide-y divide-[var(--border)] rounded-lg border border-border">
             {order.items.map((item) => (
               <li key={item.productId} className="p-4 flex justify-between gap-3">
                 <div className="min-w-0">
-                  <Link href={`/products/${item.productSlug}`} className="font-medium hover:underline">
+                  <Link
+                    href={`/products/${item.productSlug}`}
+                    className="font-medium hover:underline"
+                  >
                     {item.productName}
                   </Link>
-                  {item.productSku && (
-                    <p className="text-xs text-[var(--muted)]">SKU · {item.productSku}</p>
-                  )}
-                  <p className="mt-0.5 text-sm text-[var(--muted)]">
+                  {item.productSku && <p className="text-xs text-muted">SKU · {item.productSku}</p>}
+                  <p className="mt-0.5 text-sm text-muted">
                     {formatPrice(item.unitPrice)} × {item.quantity}
                   </p>
                 </div>
@@ -122,27 +126,27 @@ export default function OrderDetailPage() {
             ))}
           </ul>
 
-          <div className="mt-6 rounded-lg border border-[var(--border)] p-5 space-y-2 text-sm">
+          <Card className="mt-6 p-5 space-y-2 text-sm">
             <div className="flex justify-between">
-              <span className="text-[var(--muted)]">Subtotal</span>
+              <span className="text-muted">Subtotal</span>
               <span className="tabular-nums">{formatPrice(order.subtotal)}</span>
             </div>
-            <div className="flex justify-between font-semibold border-t border-[var(--border)] pt-2">
+            <div className="flex justify-between font-semibold border-t border-border pt-2">
               <span>Total</span>
               <span className="tabular-nums">{formatPrice(order.total)}</span>
             </div>
-          </div>
+          </Card>
         </section>
 
         <aside className="space-y-6">
           <AddressBlock title="Shipping" address={order.shippingAddress} />
           <AddressBlock title="Billing" address={order.billingAddress} />
-          <div className="rounded-lg border border-[var(--border)] p-4 text-xs text-[var(--muted)] space-y-1">
+          <Card className="p-4 text-xs text-muted space-y-1">
             <Timestamp label="Created" value={order.createdAt} />
             <Timestamp label="Paid" value={order.paidAt} />
             <Timestamp label="Fulfilled" value={order.fulfilledAt} />
             <Timestamp label="Canceled" value={order.canceledAt} />
-          </div>
+          </Card>
         </aside>
       </div>
     </div>
@@ -151,8 +155,8 @@ export default function OrderDetailPage() {
 
 function AddressBlock({ title, address }: { title: string; address: AddressDto }) {
   return (
-    <div className="rounded-lg border border-[var(--border)] p-4 text-sm">
-      <p className="text-xs uppercase tracking-wide text-[var(--muted)] mb-2">{title}</p>
+    <Card className="p-4 text-sm">
+      <p className="text-xs uppercase tracking-wide text-muted mb-2">{title}</p>
       <p>{address.line1}</p>
       {address.line2 && <p>{address.line2}</p>}
       <p>
@@ -160,7 +164,7 @@ function AddressBlock({ title, address }: { title: string; address: AddressDto }
         {address.region ? `, ${address.region}` : ""} {address.postalCode}
       </p>
       <p>{address.country}</p>
-    </div>
+    </Card>
   );
 }
 

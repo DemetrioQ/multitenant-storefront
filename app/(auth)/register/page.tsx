@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState, type FormEvent } from "react";
 import { AuthField } from "@/components/auth/AuthField";
 import { PasswordRules, isPasswordValid } from "@/components/auth/PasswordRules";
+import { Button } from "@/components/ui";
 import { register, resendVerification } from "@/lib/auth";
 import { ApiError } from "@/lib/types";
 
@@ -36,7 +37,10 @@ export default function RegisterPage() {
     } catch (err) {
       if (err instanceof ApiError) {
         if (err.status === 409) {
-          setSubmission({ kind: "error", message: "An account with this email already exists for this store." });
+          setSubmission({
+            kind: "error",
+            message: "An account with this email already exists for this store.",
+          });
           return;
         }
         if (err.status === 400) {
@@ -65,28 +69,26 @@ export default function RegisterPage() {
     return (
       <>
         <h1 className="text-2xl font-semibold tracking-tight">Check your email</h1>
-        <p className="mt-3 text-sm text-[var(--muted)]">
-          We sent a verification link to <strong className="text-[var(--foreground)]">{submission.email}</strong>.
-          Click it to activate your account, then sign in.
+        <p className="mt-3 text-sm text-muted">
+          We sent a verification link to{" "}
+          <strong className="text-foreground">{submission.email}</strong>. Click it to activate your
+          account, then sign in.
         </p>
         <div className="mt-6 flex flex-col gap-3">
-          <Link
-            href="/login"
-            className="inline-flex items-center justify-center rounded-full bg-[var(--brand)] px-6 py-2.5 text-sm font-medium text-[var(--brand-contrast)] hover:opacity-90"
-          >
-            Go to sign in
-          </Link>
+          <Button asChild size="pill">
+            <Link href="/login">Go to sign in</Link>
+          </Button>
           <button
             type="button"
             onClick={handleResend}
             disabled={resendState === "sending"}
-            className="text-xs text-[var(--muted)] hover:underline disabled:opacity-50"
+            className="text-xs text-muted hover:underline disabled:opacity-50"
           >
             {resendState === "sent"
               ? "Sent — check your inbox"
               : resendState === "sending"
-              ? "Sending…"
-              : "Didn't get the email? Resend"}
+                ? "Sending…"
+                : "Didn't get the email? Resend"}
           </button>
           {resendState === "error" && (
             <p className="text-xs text-red-600 dark:text-red-400">
@@ -101,8 +103,11 @@ export default function RegisterPage() {
   return (
     <>
       <h1 className="text-2xl font-semibold tracking-tight">Create your account</h1>
-      <p className="mt-1 text-sm text-[var(--muted)]">
-        Already have one? <Link href="/login" className="underline">Sign in</Link>
+      <p className="mt-1 text-sm text-muted">
+        Already have one?{" "}
+        <Link href="/login" className="underline">
+          Sign in
+        </Link>
       </p>
 
       <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-4">
@@ -149,13 +154,14 @@ export default function RegisterPage() {
           <p className="text-sm text-red-600 dark:text-red-400">{submission.message}</p>
         )}
 
-        <button
+        <Button
           type="submit"
+          size="pill"
           disabled={submission.kind === "submitting"}
-          className="mt-2 inline-flex items-center justify-center rounded-full bg-[var(--brand)] px-6 py-2.5 text-sm font-medium text-[var(--brand-contrast)] hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="mt-2"
         >
           {submission.kind === "submitting" ? "Creating account…" : "Create account"}
-        </button>
+        </Button>
       </form>
     </>
   );

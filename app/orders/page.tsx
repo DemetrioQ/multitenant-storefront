@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { OrderStatusBadge } from "@/components/OrderStatusBadge";
+import { Button } from "@/components/ui";
 import { useAuth } from "@/contexts/AuthContext";
 import { listOrders } from "@/lib/checkout";
 import { parseUtcDate } from "@/lib/dates";
@@ -55,7 +56,11 @@ export default function OrdersPage() {
   }, [authStatus, page]);
 
   if (authStatus === "loading" || state.kind === "loading") {
-    return <div className="mx-auto max-w-4xl px-4 sm:px-6 py-16 text-center text-[var(--muted)]">Loading orders…</div>;
+    return (
+      <div className="mx-auto max-w-4xl px-4 sm:px-6 py-16 text-center text-muted">
+        Loading orders…
+      </div>
+    );
   }
 
   if (state.kind === "error") {
@@ -73,23 +78,22 @@ export default function OrdersPage() {
   return (
     <div className="mx-auto max-w-4xl px-4 sm:px-6 py-12">
       <h1 className="text-3xl font-semibold tracking-tight">Your orders</h1>
-      <p className="mt-2 text-sm text-[var(--muted)]">
-        {totalCount === 0 ? "You haven't placed any orders yet." : `${totalCount} order${totalCount === 1 ? "" : "s"}`}
+      <p className="mt-2 text-sm text-muted">
+        {totalCount === 0
+          ? "You haven't placed any orders yet."
+          : `${totalCount} order${totalCount === 1 ? "" : "s"}`}
       </p>
 
       {items.length === 0 ? (
-        <div className="mt-10 rounded-lg border border-dashed border-[var(--border)] p-12 text-center">
-          <p className="text-[var(--muted)]">Nothing here yet.</p>
-          <Link
-            href="/products"
-            className="mt-6 inline-flex items-center rounded-full bg-[var(--brand)] px-4 sm:px-6 py-2.5 text-sm font-medium text-[var(--brand-contrast)] hover:opacity-90"
-          >
-            Browse products
-          </Link>
+        <div className="mt-10 rounded-lg border border-dashed border-border p-12 text-center">
+          <p className="text-muted">Nothing here yet.</p>
+          <Button asChild size="pill" className="mt-6">
+            <Link href="/products">Browse products</Link>
+          </Button>
         </div>
       ) : (
         <>
-          <ul className="mt-8 divide-y divide-[var(--border)] rounded-lg border border-[var(--border)]">
+          <ul className="mt-8 divide-y divide-[var(--border)] rounded-lg border border-border">
             {items.map((o) => (
               <li key={o.id}>
                 <Link
@@ -98,9 +102,11 @@ export default function OrdersPage() {
                 >
                   <div className="min-w-0">
                     <p className="font-mono text-sm">{o.number}</p>
-                    <p className="text-xs text-[var(--muted)]">{parseUtcDate(o.createdAt).toLocaleString()}</p>
+                    <p className="text-xs text-muted">
+                      {parseUtcDate(o.createdAt).toLocaleString()}
+                    </p>
                   </div>
-                  <p className="hidden sm:block text-sm text-[var(--muted)]">
+                  <p className="hidden sm:block text-sm text-muted">
                     {o.itemCount} item{o.itemCount === 1 ? "" : "s"}
                   </p>
                   <p className="hidden sm:block text-sm font-medium tabular-nums">
@@ -114,25 +120,19 @@ export default function OrdersPage() {
 
           {totalPages > 1 && (
             <nav className="mt-6 flex items-center justify-between text-sm">
-              <span className="text-[var(--muted)]">
+              <span className="text-muted">
                 Page {page} of {totalPages}
               </span>
               <div className="flex gap-2">
                 {page > 1 && (
-                  <Link
-                    href={`/orders?page=${page - 1}`}
-                    className="rounded border border-[var(--border)] px-4 py-2 hover:border-[var(--brand)]"
-                  >
-                    ← Previous
-                  </Link>
+                  <Button asChild variant="outline" size="sm">
+                    <Link href={`/orders?page=${page - 1}`}>← Previous</Link>
+                  </Button>
                 )}
                 {page < totalPages && (
-                  <Link
-                    href={`/orders?page=${page + 1}`}
-                    className="rounded border border-[var(--border)] px-4 py-2 hover:border-[var(--brand)]"
-                  >
-                    Next →
-                  </Link>
+                  <Button asChild variant="outline" size="sm">
+                    <Link href={`/orders?page=${page + 1}`}>Next →</Link>
+                  </Button>
                 )}
               </div>
             </nav>

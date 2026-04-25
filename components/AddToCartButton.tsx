@@ -4,7 +4,8 @@ import { useRouter, usePathname } from "next/navigation";
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/contexts/CartContext";
-import { ApiError } from "@/lib/types";
+import { Button, IconButton } from "@/components/ui";
+import { ApiError, getErrorMessage } from "@/lib/types";
 
 type Props = {
   productId: string;
@@ -28,37 +29,28 @@ export function AddToCartButton({ productId, maxStock, disabled }: Props) {
 
   if (disabled || maxStock === 0) {
     return (
-      <button
-        type="button"
-        disabled
-        className="inline-flex items-center rounded-full bg-[var(--brand)] px-6 py-3 text-sm font-medium text-[var(--brand-contrast)] opacity-40 cursor-not-allowed"
-      >
+      <Button disabled size="pill-lg" className="opacity-40 cursor-not-allowed">
         Unavailable
-      </button>
+      </Button>
     );
   }
 
   if (authStatus === "anonymous") {
     return (
-      <button
-        type="button"
+      <Button
+        size="pill-lg"
         onClick={() => router.push(`/login?next=${encodeURIComponent(pathname)}`)}
-        className="inline-flex items-center rounded-full bg-[var(--brand)] px-6 py-3 text-sm font-medium text-[var(--brand-contrast)] hover:opacity-90"
       >
         Sign in to buy
-      </button>
+      </Button>
     );
   }
 
   if (authStatus === "loading") {
     return (
-      <button
-        type="button"
-        disabled
-        className="inline-flex items-center rounded-full bg-[var(--brand)] px-6 py-3 text-sm font-medium text-[var(--brand-contrast)] opacity-50"
-      >
+      <Button disabled size="pill-lg" className="opacity-50">
         …
-      </button>
+      </Button>
     );
   }
 
@@ -70,49 +62,54 @@ export function AddToCartButton({ productId, maxStock, disabled }: Props) {
       setTimeout(() => setState({ kind: "idle" }), 2000);
     } catch (err) {
       if (err instanceof ApiError && err.status === 400) {
-        setState({ kind: "error", message: err.problem?.detail ?? "Not enough stock available." });
+        setState({
+          kind: "error",
+          message: err.problem?.detail ?? "Not enough stock available.",
+        });
         return;
       }
-      setState({ kind: "error", message: err instanceof Error ? err.message : "Failed to add to cart." });
+      setState({ kind: "error", message: getErrorMessage(err, "Failed to add to cart.") });
     }
   };
 
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center gap-3">
-        <div className="flex items-center rounded-md border border-[var(--border)]">
-          <button
+        <div className="flex items-center rounded-md border border-border">
+          <IconButton
             type="button"
+            variant="ghost"
             onClick={() => setQuantity((q) => Math.max(1, q - 1))}
             disabled={quantity <= 1}
-            className="h-10 w-10 text-lg hover:bg-[var(--border)] disabled:opacity-40"
             aria-label="Decrease quantity"
+            className="h-10 w-10 rounded-none"
           >
             −
-          </button>
+          </IconButton>
           <span className="w-10 text-center text-sm tabular-nums">{quantity}</span>
-          <button
+          <IconButton
             type="button"
+            variant="ghost"
             onClick={() => setQuantity((q) => Math.min(maxStock, q + 1))}
             disabled={quantity >= maxStock}
-            className="h-10 w-10 text-lg hover:bg-[var(--border)] disabled:opacity-40"
             aria-label="Increase quantity"
+            className="h-10 w-10 rounded-none"
           >
             +
-          </button>
+          </IconButton>
         </div>
-        <button
+        <Button
           type="button"
+          size="pill"
           onClick={handleAdd}
           disabled={state.kind === "submitting"}
-          className="inline-flex items-center rounded-full bg-[var(--brand)] px-6 py-2.5 text-sm font-medium text-[var(--brand-contrast)] hover:opacity-90 disabled:opacity-50"
         >
           {state.kind === "submitting"
             ? "Adding…"
             : state.kind === "added"
-            ? "Added to cart ✓"
-            : "Add to cart"}
-        </button>
+              ? "Added to cart ✓"
+              : "Add to cart"}
+        </Button>
       </div>
       {state.kind === "error" && (
         <p className="text-xs text-red-600 dark:text-red-400">{state.message}</p>

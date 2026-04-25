@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, type FormEvent } from "react";
 import { AddressPicker, type AddressSelection } from "@/components/checkout/AddressPicker";
 import { emptyAddress, validateAddress } from "@/components/checkout/AddressForm";
+import { Button } from "@/components/ui";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/contexts/CartContext";
 import { createAddress, listAddresses } from "@/lib/addresses";
@@ -53,15 +54,23 @@ export default function CheckoutPage() {
   const { cart, status: cartStatus, refresh: refreshCart, clear: clearCart } = useCart();
 
   const [addresses, setAddresses] = useState<CustomerAddressDto[] | null>(null);
-  const [shipping, setShipping] = useState<AddressSelection>(() =>
-    ({ kind: "inline", address: emptyAddress(), save: false, label: "" })
-  );
-  const [billing, setBilling] = useState<AddressSelection>(() =>
-    ({ kind: "inline", address: emptyAddress(), save: false, label: "" })
-  );
+  const [shipping, setShipping] = useState<AddressSelection>(() => ({
+    kind: "inline",
+    address: emptyAddress(),
+    save: false,
+    label: "",
+  }));
+  const [billing, setBilling] = useState<AddressSelection>(() => ({
+    kind: "inline",
+    address: emptyAddress(),
+    save: false,
+    label: "",
+  }));
   const [useSameAddress, setUseSameAddress] = useState(true);
   const [submission, setSubmission] = useState<Submission>({ kind: "idle" });
-  const [shippingErrors, setShippingErrors] = useState<Partial<Record<keyof AddressDto, string>>>({});
+  const [shippingErrors, setShippingErrors] = useState<Partial<Record<keyof AddressDto, string>>>(
+    {},
+  );
   const [billingErrors, setBillingErrors] = useState<Partial<Record<keyof AddressDto, string>>>({});
 
   useEffect(() => {
@@ -92,14 +101,17 @@ export default function CheckoutPage() {
 
   const submit = async (mode: "place" | "session") => {
     const sErrors = shipping.kind === "inline" ? validateAddress(shipping.address) : {};
-    const bErrors = !useSameAddress && billing.kind === "inline" ? validateAddress(billing.address) : {};
+    const bErrors =
+      !useSameAddress && billing.kind === "inline" ? validateAddress(billing.address) : {};
     setShippingErrors(sErrors);
     setBillingErrors(bErrors);
     if (Object.keys(sErrors).length > 0 || Object.keys(bErrors).length > 0) return;
 
     setSubmission({ kind: "submitting", mode });
     try {
-      const resolvedShipping = await resolveSlot(shipping, { isDefaultShipping: addresses?.length === 0 });
+      const resolvedShipping = await resolveSlot(shipping, {
+        isDefaultShipping: addresses?.length === 0,
+      });
       const resolvedBilling = useSameAddress ? null : await resolveSlot(billing);
 
       if (mode === "place") {
@@ -135,7 +147,10 @@ export default function CheckoutPage() {
           return;
         }
         if (err.status === 404) {
-          setSubmission({ kind: "error", message: "A saved address on file was removed. Pick another or enter a new one." });
+          setSubmission({
+            kind: "error",
+            message: "A saved address on file was removed. Pick another or enter a new one.",
+          });
           return;
         }
       }
@@ -146,9 +161,14 @@ export default function CheckoutPage() {
     }
   };
 
-  if (authStatus === "loading" || cartStatus === "loading" || cartStatus === "idle" || addresses === null) {
+  if (
+    authStatus === "loading" ||
+    cartStatus === "loading" ||
+    cartStatus === "idle" ||
+    addresses === null
+  ) {
     return (
-      <div className="mx-auto max-w-5xl px-4 sm:px-6 py-16 text-center text-[var(--muted)]">
+      <div className="mx-auto max-w-5xl px-4 sm:px-6 py-16 text-center text-muted">
         Loading checkout…
       </div>
     );
@@ -159,9 +179,9 @@ export default function CheckoutPage() {
       <div className="mx-auto max-w-5xl px-4 sm:px-6 py-16">
         <h1 className="text-2xl font-semibold">Checkout</h1>
         <p className="mt-4 text-red-600 dark:text-red-400">Couldn&apos;t load your cart.</p>
-        <button type="button" onClick={refreshCart} className="mt-4 rounded-md border border-[var(--border)] px-4 py-2 text-sm">
+        <Button type="button" variant="outline" onClick={refreshCart} className="mt-4">
           Retry
-        </button>
+        </Button>
       </div>
     );
   }
@@ -170,13 +190,10 @@ export default function CheckoutPage() {
     return (
       <div className="mx-auto max-w-xl px-4 sm:px-6 py-16 text-center">
         <h1 className="text-2xl font-semibold">Your cart is empty</h1>
-        <p className="mt-2 text-sm text-[var(--muted)]">Add something to it before checking out.</p>
-        <Link
-          href="/products"
-          className="mt-6 inline-flex items-center rounded-full bg-[var(--brand)] px-4 sm:px-6 py-2.5 text-sm font-medium text-[var(--brand-contrast)] hover:opacity-90"
-        >
-          Browse products
-        </Link>
+        <p className="mt-2 text-sm text-muted">Add something to it before checking out.</p>
+        <Button asChild size="pill" className="mt-6">
+          <Link href="/products">Browse products</Link>
+        </Button>
       </div>
     );
   }
@@ -232,45 +249,46 @@ export default function CheckoutPage() {
           )}
         </div>
 
-        <aside className="lg:sticky lg:top-8 h-fit rounded-lg border border-[var(--border)] p-6 space-y-4">
+        <aside className="lg:sticky lg:top-8 h-fit rounded-lg border border-border p-6 space-y-4">
           <h2 className="text-lg font-medium">Order summary</h2>
           <ul className="divide-y divide-[var(--border)]">
             {items.map((item) => (
               <li key={item.productId} className="py-3 flex justify-between gap-3 text-sm">
                 <div className="min-w-0">
                   <p className="font-medium truncate">{item.productName}</p>
-                  <p className="text-[var(--muted)]">× {item.quantity}</p>
+                  <p className="text-muted">× {item.quantity}</p>
                 </div>
                 <p className="tabular-nums whitespace-nowrap">{formatPrice(item.lineTotal)}</p>
               </li>
             ))}
           </ul>
-          <div className="border-t border-[var(--border)] pt-4 flex justify-between font-semibold">
+          <div className="border-t border-border pt-4 flex justify-between font-semibold">
             <span>Subtotal</span>
             <span>{formatPrice(cart?.subtotal ?? 0)}</span>
           </div>
 
           <div className="flex flex-col gap-3 pt-2">
-            <button
-              type="submit"
-              disabled={submitting}
-              className="inline-flex items-center justify-center rounded-full bg-[var(--brand)] px-4 sm:px-6 py-3 text-sm font-medium text-[var(--brand-contrast)] hover:opacity-90 disabled:opacity-50"
-            >
-              {submission.kind === "submitting" && submission.mode === "session" ? "Redirecting…" : "Pay now"}
-            </button>
-            <button
+            <Button type="submit" size="pill-lg" disabled={submitting}>
+              {submission.kind === "submitting" && submission.mode === "session"
+                ? "Redirecting…"
+                : "Pay now"}
+            </Button>
+            <Button
               type="button"
+              variant="outline"
+              size="pill-lg"
               disabled={submitting}
               onClick={() => submit("place")}
-              className="inline-flex items-center justify-center rounded-full border border-[var(--border)] px-4 sm:px-6 py-3 text-sm font-medium hover:border-[var(--brand)] disabled:opacity-50"
             >
-              {submission.kind === "submitting" && submission.mode === "place" ? "Placing…" : "Place order (pay later)"}
-            </button>
+              {submission.kind === "submitting" && submission.mode === "place"
+                ? "Placing…"
+                : "Place order (pay later)"}
+            </Button>
           </div>
 
-          <p className="text-xs text-[var(--muted)]">
-            Choosing &quot;Pay now&quot; redirects you to the payment provider. &quot;Place order&quot; creates
-            the order in pending status without charging you.
+          <p className="text-xs text-muted">
+            Choosing &quot;Pay now&quot; redirects you to the payment provider. &quot;Place
+            order&quot; creates the order in pending status without charging you.
           </p>
         </aside>
       </form>

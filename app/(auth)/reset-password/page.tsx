@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { AuthField } from "@/components/auth/AuthField";
 import { PasswordRules, isPasswordValid } from "@/components/auth/PasswordRules";
+import { Button } from "@/components/ui";
 import { resetPassword } from "@/lib/auth";
 import { ApiError } from "@/lib/types";
 
@@ -29,7 +30,10 @@ export default function ResetPasswordPage() {
     e.preventDefault();
     setTouched(true);
     if (!token) {
-      setSubmission({ kind: "error", message: "Missing reset token — use the link from your email." });
+      setSubmission({
+        kind: "error",
+        message: "Missing reset token — use the link from your email.",
+      });
       return;
     }
     if (!passwordOk) return;
@@ -62,7 +66,7 @@ export default function ResetPasswordPage() {
     return (
       <>
         <h1 className="text-2xl font-semibold tracking-tight">Password updated</h1>
-        <p className="mt-3 text-sm text-[var(--muted)]">Redirecting you to sign in…</p>
+        <p className="mt-3 text-sm text-muted">Redirecting you to sign in…</p>
       </>
     );
   }
@@ -88,16 +92,17 @@ export default function ResetPasswordPage() {
           <p className="text-sm text-red-600 dark:text-red-400">{submission.message}</p>
         )}
 
-        <button
+        <Button
           type="submit"
+          size="pill"
           disabled={submission.kind === "submitting"}
-          className="mt-2 inline-flex items-center justify-center rounded-full bg-[var(--brand)] px-6 py-2.5 text-sm font-medium text-[var(--brand-contrast)] hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="mt-2"
         >
           {submission.kind === "submitting" ? "Updating…" : "Update password"}
-        </button>
+        </Button>
       </form>
       <p className="mt-4 text-center text-sm">
-        <Link href="/login" className="text-[var(--muted)] hover:underline">
+        <Link href="/login" className="text-muted hover:underline">
           Back to sign in
         </Link>
       </p>

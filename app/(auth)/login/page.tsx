@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState, type FormEvent } from "react";
 import { AuthField } from "@/components/auth/AuthField";
+import { Button } from "@/components/ui";
 import { useAuth } from "@/contexts/AuthContext";
 import { resendVerification } from "@/lib/auth";
 import { formatDuration, parseUtcDate } from "@/lib/dates";
@@ -93,9 +94,11 @@ export default function LoginPage() {
   return (
     <>
       <h1 className="text-2xl font-semibold tracking-tight">Sign in</h1>
-      <p className="mt-1 text-sm text-[var(--muted)]">
+      <p className="mt-1 text-sm text-muted">
         Don&apos;t have an account?{" "}
-        <Link href="/register" className="underline">Create one</Link>
+        <Link href="/register" className="underline">
+          Create one
+        </Link>
       </p>
 
       <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-4">
@@ -123,23 +126,25 @@ export default function LoginPage() {
         {unverified && (
           <div className="rounded-md border border-amber-500/40 bg-amber-500/10 p-4 text-sm">
             <p className="font-medium">Email not verified</p>
-            <p className="mt-1 text-[var(--muted)]">
+            <p className="mt-1 text-muted">
               Check your inbox for a verification link, or resend it below.
             </p>
-            <button
+            <Button
               type="button"
+              variant="outline"
+              size="sm"
               onClick={handleResend}
               disabled={resendState === "sending" || cooldown > 0}
-              className="mt-3 rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-1.5 text-xs hover:border-[var(--brand)] disabled:opacity-50 disabled:cursor-not-allowed"
+              className="mt-3"
             >
               {resendState === "sent"
                 ? "Sent — check your inbox"
                 : cooldown > 0
-                ? `Resend in ${formatDuration(cooldown)}`
-                : resendState === "sending"
-                ? "Sending…"
-                : "Resend verification email"}
-            </button>
+                  ? `Resend in ${formatDuration(cooldown)}`
+                  : resendState === "sending"
+                    ? "Sending…"
+                    : "Resend verification email"}
+            </Button>
             {resendState === "error" && (
               <p className="mt-2 text-xs text-red-600 dark:text-red-400">
                 Couldn&apos;t resend. Try again in a moment.
@@ -148,17 +153,18 @@ export default function LoginPage() {
           </div>
         )}
 
-        <button
+        <Button
           type="submit"
+          size="pill"
           disabled={submission.kind === "submitting"}
-          className="mt-2 inline-flex items-center justify-center rounded-full bg-[var(--brand)] px-6 py-2.5 text-sm font-medium text-[var(--brand-contrast)] hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="mt-2"
         >
           {submission.kind === "submitting" ? "Signing in…" : "Sign in"}
-        </button>
+        </Button>
       </form>
 
       <p className="mt-4 text-center text-sm">
-        <Link href="/forgot-password" className="text-[var(--muted)] hover:underline">
+        <Link href="/forgot-password" className="text-muted hover:underline">
           Forgot your password?
         </Link>
       </p>

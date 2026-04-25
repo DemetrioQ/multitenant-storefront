@@ -35,10 +35,7 @@ const RESPONSE_SKIP = new Set([
   "keep-alive",
 ]);
 
-async function handler(
-  req: NextRequest,
-  { params }: { params: Promise<{ path: string[] }> },
-) {
+async function handler(req: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {
   if (!BACKEND_URL) {
     return NextResponse.json(
       { title: "Backend not configured", detail: "NEXT_PUBLIC_API_URL is empty" },
@@ -71,7 +68,10 @@ async function handler(
       redirect: "manual",
     });
   } catch (err) {
-    const cause = err instanceof Error && "cause" in err && err.cause instanceof Error ? err.cause.message : undefined;
+    const cause =
+      err instanceof Error && "cause" in err && err.cause instanceof Error
+        ? err.cause.message
+        : undefined;
     return NextResponse.json(
       {
         title: "Backend unreachable",

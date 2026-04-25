@@ -27,7 +27,9 @@ export function PasswordRules({ value }: { value: string }) {
             key={rule.label}
             className={ok ? "text-emerald-600 dark:text-emerald-400" : "text-[var(--muted)]"}
           >
-            <span aria-hidden className="mr-1.5">{ok ? "✓" : "•"}</span>
+            <span aria-hidden className="mr-1.5">
+              {ok ? "✓" : "•"}
+            </span>
             {rule.label}
           </li>
         );

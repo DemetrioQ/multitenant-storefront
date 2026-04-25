@@ -111,9 +111,7 @@ export default async function ProductDetailPage({ params }: Props) {
             <AddToCartButton productId={product.id} maxStock={product.stock} />
           </div>
           {!outOfStock && (
-            <p className="mt-2 text-xs text-[var(--muted)]">
-              {product.stock} in stock
-            </p>
+            <p className="mt-2 text-xs text-[var(--muted)]">{product.stock} in stock</p>
           )}
         </div>
       </div>
