@@ -5,7 +5,7 @@
   --foreground: #171717;
   --muted: #6b7280;
   --border: #e5e7eb;
-  --brand: #111827;
+  --brand: #059669; /* emerald-600 */
   --brand-contrast: #ffffff;
 }
 
@@ -26,8 +26,8 @@
     --foreground: #ededed;
     --muted: #9ca3af;
     --border: #1f2937;
-    --brand: #f3f4f6;
-    --brand-contrast: #111827;
+    --brand: #34d399; /* emerald-400 — brighter for dark surfaces */
+    --brand-contrast: #022c22; /* emerald-950 — readable contrast on emerald-400 */
   }
 }
 
