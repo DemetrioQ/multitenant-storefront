@@ -31,7 +31,8 @@
   }
 }
 
-html, body {
+html,
+body {
   overscroll-behavior: none;
 }
 
@@ -49,19 +50,40 @@ body {
 
 /* Prevent iOS Safari from zooming when focusing inputs with < 16px font */
 @media (max-width: 640px) {
-  input, textarea, select {
+  input,
+  textarea,
+  select {
     font-size: 16px !important;
   }
 }
 
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   -webkit-user-select: none;
   user-select: none;
 }
 
-p, li, td, th, code, pre, h1, h2, h3, h4, h5, h6, label,
-input, textarea, select, [contenteditable="true"], [contenteditable=""],
-.select-text, [data-selectable] {
+p,
+li,
+td,
+th,
+code,
+pre,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+label,
+input,
+textarea,
+select,
+[contenteditable="true"],
+[contenteditable=""],
+.select-text,
+[data-selectable] {
   -webkit-user-select: text;
   user-select: text;
 }
