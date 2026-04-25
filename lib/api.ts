@@ -44,7 +44,15 @@ function buildUrl(
 const DEFAULT_TIMEOUT_MS = 5000;
 const IS_DEV = process.env.NODE_ENV !== "production";
 
-async function request<T>(path: string, opts: { revalidate?: number; extra?: Record<string, string | number>; timeoutMs?: number; prefix?: string } = {}): Promise<T> {
+async function request<T>(
+  path: string,
+  opts: {
+    revalidate?: number;
+    extra?: Record<string, string | number>;
+    timeoutMs?: number;
+    prefix?: string;
+  } = {},
+): Promise<T> {
   const { url, slug, override } = await resolveBase();
   const full = buildUrl(url, path, slug, override, opts.extra, opts.prefix);
   let res: Response;
@@ -56,7 +64,10 @@ async function request<T>(path: string, opts: { revalidate?: number; extra?: Rec
       signal: AbortSignal.timeout(opts.timeoutMs ?? DEFAULT_TIMEOUT_MS),
     });
   } catch (err) {
-    const cause = err instanceof Error && "cause" in err && err.cause instanceof Error ? ` (${err.cause.message})` : "";
+    const cause =
+      err instanceof Error && "cause" in err && err.cause instanceof Error
+        ? ` (${err.cause.message})`
+        : "";
     const message = err instanceof Error ? err.message : "Network error";
     throw new ApiError(0, `${message}${cause}`);
   }
@@ -104,7 +115,9 @@ export async function getStore(): Promise<ApiStore> {
   return promise;
 }
 
-export function listProducts(params: { page?: number; pageSize?: number } = {}): Promise<ApiProductList> {
+export function listProducts(
+  params: { page?: number; pageSize?: number } = {},
+): Promise<ApiProductList> {
   const extra: Record<string, string | number> = {};
   if (params.page) extra.page = params.page;
   if (params.pageSize) extra.pageSize = params.pageSize;
@@ -115,7 +128,9 @@ export function getProduct(slug: string): Promise<ApiProduct> {
   return request<ApiProduct>(`/products/${encodeURIComponent(slug)}`, { revalidate: 60 });
 }
 
-export function listStores(params: { page?: number; pageSize?: number } = {}): Promise<StoreSummaryList> {
+export function listStores(
+  params: { page?: number; pageSize?: number } = {},
+): Promise<StoreSummaryList> {
   const extra: Record<string, string | number> = {};
   if (params.page) extra.page = params.page;
   if (params.pageSize) extra.pageSize = params.pageSize;

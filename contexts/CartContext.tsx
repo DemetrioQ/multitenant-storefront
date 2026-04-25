@@ -36,7 +36,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         setState({ status: "idle", cart: null, error: null });
         return;
       }
-      setState({ status: "error", cart: null, error: err instanceof Error ? err.message : "Failed to load cart" });
+      setState({
+        status: "error",
+        cart: null,
+        error: err instanceof Error ? err.message : "Failed to load cart",
+      });
     }
   }, []);
 
@@ -49,37 +53,40 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
   }, [authStatus, refresh]);
 
-  const mutate = useCallback(async <T,>(op: () => Promise<T>, applyCart: (result: T) => void): Promise<T> => {
-    const result = await op();
-    applyCart(result);
-    return result;
-  }, []);
+  const mutate = useCallback(
+    async <T,>(op: () => Promise<T>, applyCart: (result: T) => void): Promise<T> => {
+      const result = await op();
+      applyCart(result);
+      return result;
+    },
+    [],
+  );
 
   const addItem = useCallback(
     (productId: string, quantity: number) =>
       mutate(
         () => cartApi.addCartItem(productId, quantity),
-        (cart) => setState({ status: "ready", cart, error: null })
+        (cart) => setState({ status: "ready", cart, error: null }),
       ),
-    [mutate]
+    [mutate],
   );
 
   const updateItem = useCallback(
     (productId: string, quantity: number) =>
       mutate(
         () => cartApi.updateCartItem(productId, quantity),
-        (cart) => setState({ status: "ready", cart, error: null })
+        (cart) => setState({ status: "ready", cart, error: null }),
       ),
-    [mutate]
+    [mutate],
   );
 
   const removeItem = useCallback(
     (productId: string) =>
       mutate(
         () => cartApi.removeCartItem(productId),
-        (cart) => setState({ status: "ready", cart, error: null })
+        (cart) => setState({ status: "ready", cart, error: null }),
       ),
-    [mutate]
+    [mutate],
   );
 
   const clear = useCallback(async () => {
@@ -91,7 +98,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const value = useMemo<CartContextValue>(
     () => ({ ...state, refresh, addItem, updateItem, removeItem, clear, totalItems }),
-    [state, refresh, addItem, updateItem, removeItem, clear, totalItems]
+    [state, refresh, addItem, updateItem, removeItem, clear, totalItems],
   );
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

@@ -47,7 +47,11 @@ async function parseError(res: Response): Promise<ApiError> {
   return new ApiError(res.status, problem?.title ?? `Request failed: ${res.status}`, problem);
 }
 
-async function singleFetch(url: string, init: RequestInit, opts: RequestOptions): Promise<Response> {
+async function singleFetch(
+  url: string,
+  init: RequestInit,
+  opts: RequestOptions,
+): Promise<Response> {
   const headers = new Headers(init.headers);
   headers.set("Accept", "application/json");
   if (opts.body !== undefined) headers.set("Content-Type", "application/json");
@@ -91,7 +95,10 @@ export async function apiFetch<T>(path: string, opts: RequestOptions = {}): Prom
   try {
     res = await singleFetch(url, init, opts);
   } catch (err) {
-    const cause = err instanceof Error && "cause" in err && err.cause instanceof Error ? ` (${err.cause.message})` : "";
+    const cause =
+      err instanceof Error && "cause" in err && err.cause instanceof Error
+        ? ` (${err.cause.message})`
+        : "";
     const message = err instanceof Error ? err.message : "Network error";
     throw new ApiError(0, `${message}${cause}`);
   }

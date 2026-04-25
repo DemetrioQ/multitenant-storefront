@@ -1,6 +1,14 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import * as authApi from "@/lib/auth";
 import { getAuthToken, setAuthToken } from "@/lib/authToken";
 import { decodeJwt, jwtExpiresInMs } from "@/lib/jwt";
@@ -69,7 +77,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       }, delay);
     },
-    [applyToken]
+    [applyToken],
   );
 
   const refresh = useCallback(async (): Promise<boolean> => {
@@ -92,7 +100,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       scheduleRefresh(res.jwtToken);
       return res;
     },
-    [applyToken, scheduleRefresh]
+    [applyToken, scheduleRefresh],
   );
 
   const logout = useCallback(async () => {
@@ -134,7 +142,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const value = useMemo<AuthContextValue>(
     () => ({ ...state, login, logout, refresh }),
-    [state, login, logout, refresh]
+    [state, login, logout, refresh],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

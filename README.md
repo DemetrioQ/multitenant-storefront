@@ -35,22 +35,29 @@ If `saas-api` is running with the ASP.NET dev certificate, uncomment
 
 ## Environment
 
-| Var | Purpose |
-|---|---|
-| `NEXT_PUBLIC_API_URL` | Absolute URL of `saas-api`. Leave empty in prod to use same-origin. |
+| Var                                  | Purpose                                                                     |
+| ------------------------------------ | --------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_API_URL`                | Absolute URL of `saas-api`. Leave empty in prod to use same-origin.         |
 | `NEXT_PUBLIC_STOREFRONT_HOST_SUFFIX` | Host suffix that separates landing from tenant stores. Must start with `.`. |
-| `NEXT_PUBLIC_DASHBOARD_URL` | Merchant dashboard URL used by the landing navbar. |
+| `NEXT_PUBLIC_DASHBOARD_URL`          | Merchant dashboard URL used by the landing navbar.                          |
 
 Defaults live in `lib/config.ts` and differ between `NODE_ENV=production` and dev.
 
 ## Scripts
 
-| Script | Description |
-|---|---|
-| `npm run dev` | Next.js dev server (Turbopack) |
-| `npm run build` | Production build |
-| `npm run start` | Serve the production build |
-| `npm run lint` | ESLint |
+| Script                 | Description                         |
+| ---------------------- | ----------------------------------- |
+| `npm run dev`          | Next.js dev server (Turbopack)      |
+| `npm run build`        | Production build                    |
+| `npm run start`        | Serve the production build          |
+| `npm run lint`         | ESLint                              |
+| `npm run typecheck`    | `tsc --noEmit`                      |
+| `npm test`             | Vitest smoke tests (jsdom + RTL)    |
+| `npm run test:watch`   | Vitest in watch mode                |
+| `npm run format`       | `prettier --write .`                |
+| `npm run format:check` | `prettier --check .` (CI uses this) |
+
+CI (`.github/workflows/ci.yml`) runs typecheck → lint → format-check → test → build on every PR. A pre-commit hook runs `eslint --fix` + `prettier --write` on staged files via `husky` + `lint-staged`.
 
 ## Layout
 
@@ -64,11 +71,31 @@ app/
   orders/            order history and detail
   products/[slug]/   product detail
   store-not-found/   rewritten target for unknown hosts
-components/          Header, AddToCartButton, checkout + auth pieces
+  error.tsx          per-segment error boundary (uses captureError)
+  global-error.tsx   root error boundary
+components/
+  ui/                design-system primitives (Button, Card, Badge, Input, …)
+  Header, AddToCartButton, OrderStatusBadge, checkout + auth pieces
 contexts/            AuthContext, CartContext, StoreContext
-lib/                 api client, auth/cart/checkout helpers, config, types
+lib/                 api client, auth/cart/checkout helpers, config, types,
+                     cn helper, errorMonitoring (Sentry stub)
 proxy.ts             host-based routing at the edge
+test/                Vitest setup
 ```
+
+## Design system
+
+See [`DESIGN.md`](./DESIGN.md) for visual language, tokens, and the relationship to the sibling `saas-dashboard` design system. Per-component usage docs live in [`components/ui/README.md`](./components/ui/README.md).
+
+```tsx
+import { Button, Card, Input, Badge, useConfirm, useToast } from "@/components/ui";
+```
+
+## Documentation
+
+- [`DESIGN.md`](./DESIGN.md) — design tokens, visual language, light/auto-mode rationale
+- [`components/ui/README.md`](./components/ui/README.md) — per-primitive usage docs
+- [`CHANGELOG.md`](./CHANGELOG.md) — what changed and when
 
 ## Conventions
 

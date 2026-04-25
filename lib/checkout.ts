@@ -1,18 +1,11 @@
 "use client";
 
 import { apiFetch } from "./apiClient";
-import type {
-  AddressDto,
-  CheckoutSessionResponse,
-  OrderDto,
-  OrderListDto,
-} from "./types";
+import type { AddressDto, CheckoutSessionResponse, OrderDto, OrderListDto } from "./types";
 
 // Address slot: either an inline address OR a saved-address id, but never
 // both and (for shipping) never neither.
-type AddressSlot =
-  | { inline: AddressDto; id?: undefined }
-  | { inline?: undefined; id: string };
+type AddressSlot = { inline: AddressDto; id?: undefined } | { inline?: undefined; id: string };
 
 type CheckoutInput = {
   shipping: AddressSlot;
@@ -45,7 +38,7 @@ export function placeOrder(input: CheckoutInput): Promise<OrderDto> {
 }
 
 export function createCheckoutSession(
-  input: CheckoutInput & { successUrl: string; cancelUrl: string }
+  input: CheckoutInput & { successUrl: string; cancelUrl: string },
 ): Promise<CheckoutSessionResponse> {
   const shipping = normalize(input.shipping);
   const billing = normalize(input.billing);
@@ -63,7 +56,9 @@ export function createCheckoutSession(
   });
 }
 
-export function listOrders(params: { page?: number; pageSize?: number } = {}): Promise<OrderListDto> {
+export function listOrders(
+  params: { page?: number; pageSize?: number } = {},
+): Promise<OrderListDto> {
   return apiFetch<OrderListDto>("/orders", {
     auth: true,
     query: { page: params.page, pageSize: params.pageSize },

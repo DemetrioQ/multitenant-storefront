@@ -1,7 +1,10 @@
 import type { CustomerClaims } from "./types";
 
 function base64UrlDecode(segment: string): string {
-  const padded = segment.replace(/-/g, "+").replace(/_/g, "/").padEnd(segment.length + ((4 - (segment.length % 4)) % 4), "=");
+  const padded = segment
+    .replace(/-/g, "+")
+    .replace(/_/g, "/")
+    .padEnd(segment.length + ((4 - (segment.length % 4)) % 4), "=");
   if (typeof atob === "function") return atob(padded);
   return Buffer.from(padded, "base64").toString("binary");
 }
@@ -14,7 +17,7 @@ export function decodeJwt(token: string): CustomerClaims | null {
     const decoded = decodeURIComponent(
       Array.from(payload)
         .map((c) => "%" + c.charCodeAt(0).toString(16).padStart(2, "0"))
-        .join("")
+        .join(""),
     );
     return JSON.parse(decoded) as CustomerClaims;
   } catch {
