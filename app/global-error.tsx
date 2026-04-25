@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { captureError } from "@/lib/errorMonitoring";
 
 export default function GlobalError({
   error,
@@ -10,18 +11,27 @@ export default function GlobalError({
   reset: () => void;
 }) {
   useEffect(() => {
-    console.error("Global error:", error);
+    captureError(error, { digest: error.digest, scope: "global-error" });
   }, [error]);
 
   return (
     <html lang="en">
-      <body style={{ fontFamily: "system-ui, sans-serif", padding: "4rem 1.5rem", textAlign: "center" }}>
+      <body
+        style={{ fontFamily: "system-ui, sans-serif", padding: "4rem 1.5rem", textAlign: "center" }}
+      >
         <h1 style={{ fontSize: "1.75rem", fontWeight: 600 }}>Something broke</h1>
         <p style={{ marginTop: "1rem", color: "#6b7280" }}>
           The app ran into an unexpected problem loading this page.
         </p>
         {error.digest && (
-          <p style={{ marginTop: "0.5rem", color: "#9ca3af", fontFamily: "monospace", fontSize: "0.75rem" }}>
+          <p
+            style={{
+              marginTop: "0.5rem",
+              color: "#9ca3af",
+              fontFamily: "monospace",
+              fontSize: "0.75rem",
+            }}
+          >
             ref: {error.digest}
           </p>
         )}

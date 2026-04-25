@@ -39,6 +39,20 @@ export class ApiError extends Error {
   }
 }
 
+export function isApiError(err: unknown): err is ApiError {
+  return err instanceof ApiError;
+}
+
+/**
+ * Pull a user-facing error message out of any thrown value.
+ * Use this in `catch` blocks instead of casting `(err as any).problem?.detail`.
+ */
+export function getErrorMessage(err: unknown, fallback = "Something went wrong."): string {
+  if (isApiError(err)) return err.problem?.detail ?? err.message ?? fallback;
+  if (err instanceof Error) return err.message || fallback;
+  return fallback;
+}
+
 export type LoginResponse = {
   jwtToken: string;
   expiresAt: string;
