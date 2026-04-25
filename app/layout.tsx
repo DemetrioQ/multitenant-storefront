@@ -12,6 +12,7 @@ import { LandingHeader } from "@/components/LandingHeader";
 import { LandingFooter } from "@/components/LandingFooter";
 import { StoreUnavailableScreen } from "@/components/StoreUnavailableScreen";
 import { ToastProvider } from "@/components/ui";
+import { safeHttpHref } from "@/lib/format";
 import "./globals.css";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
@@ -137,9 +138,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                           {store.supportEmail}
                         </a>
                       )}
-                      {store?.websiteUrl && (
+                      {safeHttpHref(store?.websiteUrl) && (
                         <a
-                          href={store.websiteUrl}
+                          href={safeHttpHref(store?.websiteUrl)!}
                           target="_blank"
                           rel="noreferrer"
                           className="hover:underline"
