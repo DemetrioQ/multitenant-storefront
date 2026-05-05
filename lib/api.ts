@@ -57,6 +57,7 @@ async function request<T>(
   path: string,
   opts: {
     revalidate?: number;
+    noStore?: boolean;
     extra?: Record<string, string | number>;
     timeoutMs?: number;
     prefix?: string;
@@ -64,12 +65,13 @@ async function request<T>(
 ): Promise<T> {
   const { url, slug, override } = await resolveBase();
   const full = buildUrl(url, path, slug, override, opts.extra, opts.prefix);
+  const noStore = IS_DEV || opts.noStore;
   let res: Response;
   try {
     res = await fetch(full, {
       headers: { Accept: "application/json" },
-      cache: IS_DEV ? "no-store" : undefined,
-      next: IS_DEV ? undefined : { revalidate: opts.revalidate ?? 60 },
+      cache: noStore ? "no-store" : undefined,
+      next: noStore ? undefined : { revalidate: opts.revalidate ?? 60 },
       signal: AbortSignal.timeout(opts.timeoutMs ?? DEFAULT_TIMEOUT_MS),
     });
   } catch (err) {
@@ -130,11 +132,11 @@ export function listProducts(
   const extra: Record<string, string | number> = {};
   if (params.page) extra.page = params.page;
   if (params.pageSize) extra.pageSize = params.pageSize;
-  return request<ApiProductList>("/products", { revalidate: 60, extra });
+  return request<ApiProductList>("/products", { noStore: true, extra });
 }
 
 export function getProduct(slug: string): Promise<ApiProduct> {
-  return request<ApiProduct>(`/products/${encodeURIComponent(slug)}`, { revalidate: 60 });
+  return request<ApiProduct>(`/products/${encodeURIComponent(slug)}`, { noStore: true });
 }
 
 export function listStores(
