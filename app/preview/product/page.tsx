@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { ProductCardView, type ProductCardData } from "@/components/product/ProductCardView";
 import { ProductDetailView } from "@/components/product/ProductDetailView";
@@ -62,6 +62,14 @@ function StubAddToCart({ stock }: { stock: number }) {
 }
 
 export default function PreviewProductPage() {
+  return (
+    <Suspense fallback={null}>
+      <PreviewProductInner />
+    </Suspense>
+  );
+}
+
+function PreviewProductInner() {
   const sp = useSearchParams();
   const initial = useMemo(() => readFromSearchParams(sp), [sp]);
   const [product, setProduct] = useState<PreviewProduct>(initial.product);
