@@ -71,11 +71,24 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const h = await headers();
   const host = h.get("host");
   const bare = isBareHost(host);
+  const pathname = h.get("x-pathname") ?? "";
   const proto =
     h.get("x-forwarded-proto") ?? (process.env.NODE_ENV === "production" ? "https:" : "http:");
   const bareHostUrl = getBareHostUrl(proto.endsWith(":") ? proto : `${proto}:`);
 
   const htmlClass = `${geistSans.variable} ${geistMono.variable} h-full antialiased`;
+
+  // /preview routes are embedded in iframes by the dashboard. They render
+  // the same product components as production but skip all storefront chrome
+  // (header, footer, providers, store fetch) so the iframe shows just the
+  // product surface and loads fast even when the backend is unreachable.
+  if (pathname.startsWith("/preview")) {
+    return (
+      <html lang="en" className={htmlClass}>
+        <body className="min-h-full">{children}</body>
+      </html>
+    );
+  }
 
   if (bare) {
     return (
