@@ -45,12 +45,27 @@ export default function LoginPage() {
   const router = useRouter();
   const params = useSearchParams();
   const redirectTo = safeNext(params.get("next"));
-  const { login, status } = useAuth();
+  const { login, status, signInAsDemo } = useAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submission, setSubmission] = useState<Submission>({ kind: "idle" });
   const [resendState, setResendState] = useState<"idle" | "sending" | "sent" | "error">("idle");
+  const [demoLoading, setDemoLoading] = useState(false);
+  const [demoError, setDemoError] = useState<string | null>(null);
+
+  const handleDemoSignIn = async () => {
+    setDemoLoading(true);
+    setDemoError(null);
+    try {
+      await signInAsDemo();
+      router.replace(redirectTo);
+      router.refresh();
+    } catch {
+      setDemoError("Could not start a demo session. Try again in a moment.");
+      setDemoLoading(false);
+    }
+  };
 
   const unverified = submission.kind === "unverified" ? submission : null;
   const cooldown = useCooldown(unverified?.canResendAt ?? null);
@@ -114,6 +129,25 @@ export default function LoginPage() {
           Create one
         </Link>
       </p>
+
+      <div className="mt-6 rounded-md border border-amber-500/40 bg-amber-500/10 p-4">
+        <p className="text-sm font-medium">Just browsing?</p>
+        <p className="mt-1 text-xs text-muted">
+          Skip the form — get a temporary demo shopper account so you can add to cart and check out.
+          Nothing is real.
+        </p>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={handleDemoSignIn}
+          disabled={demoLoading}
+          className="mt-3"
+        >
+          {demoLoading ? "Setting up demo…" : "Try the demo"}
+        </Button>
+        {demoError && <p className="mt-2 text-xs text-red-600 dark:text-red-400">{demoError}</p>}
+      </div>
 
       <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-4">
         <AuthField

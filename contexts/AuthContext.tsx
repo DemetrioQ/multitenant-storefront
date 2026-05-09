@@ -24,11 +24,13 @@ type AuthContextValue = AuthState & {
   login: (email: string, password: string) => Promise<LoginResponse>;
   logout: () => Promise<void>;
   refresh: () => Promise<boolean>;
+  signInAsDemo: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 const REFRESH_LEAD_MS = 30_000;
+const NO_AUTO_DEMO_KEY = "storefront:no-auto-demo";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<AuthState>({ status: "loading", customer: null, token: null });
@@ -96,12 +98,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = useCallback(
     async (email: string, password: string): Promise<LoginResponse> => {
       const res = await authApi.login({ email, password });
+      try {
+        localStorage.removeItem(NO_AUTO_DEMO_KEY);
+      } catch {
+        // ignore
+      }
       applyToken(res.jwtToken);
       scheduleRefresh(res.jwtToken);
       return res;
     },
     [applyToken, scheduleRefresh],
   );
+
+  const signInAsDemo = useCallback(async () => {
+    const res = await authApi.demoProvision();
+    try {
+      localStorage.removeItem(NO_AUTO_DEMO_KEY);
+    } catch {
+      // ignore
+    }
+    applyToken(res.jwtToken);
+    scheduleRefresh(res.jwtToken);
+  }, [applyToken, scheduleRefresh]);
 
   const logout = useCallback(async () => {
     try {
@@ -111,10 +129,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
     applyToken(null);
     if (refreshTimeoutRef.current) clearTimeout(refreshTimeoutRef.current);
-    // Notify other tabs of this same origin so they also drop their in-memory
-    // token. The "storage" event only fires in OTHER tabs, never the one that
-    // wrote the key — so this is safe to do unconditionally.
+    // Persist the explicit sign-out so the next bootstrap doesn't silently
+    // re-demo the visitor. They'll see /login with the "Try the demo" button.
     try {
+      localStorage.setItem(NO_AUTO_DEMO_KEY, "true");
+      // Notify other tabs of this same origin so they also drop their in-memory
+      // token. The "storage" event only fires in OTHER tabs, never the one that
+      // wrote the key — so this is safe to do unconditionally.
       localStorage.setItem("storefront:auth-logout", String(Date.now()));
       localStorage.removeItem("storefront:auth-logout");
     } catch {
@@ -133,10 +154,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
         return;
       } catch {
-        // No valid refresh cookie — fall through to auto-provisioning a demo
-        // customer so visitors can shop without registering.
+        // No valid refresh cookie — fall through.
       }
       if (cancelled) return;
+
+      // If the visitor signed out before, leave them anonymous so the login
+      // page can show the "Try the demo" button. Otherwise auto-provision
+      // a demo customer so first-time arrivals can shop immediately.
+      let suppressAutoDemo = false;
+      try {
+        suppressAutoDemo = localStorage.getItem(NO_AUTO_DEMO_KEY) === "true";
+      } catch {
+        // localStorage may be unavailable in private mode — fail open to demo.
+      }
+      if (suppressAutoDemo) {
+        applyToken(null);
+        return;
+      }
+
       try {
         const res = await authApi.demoProvision();
         if (!cancelled) {
@@ -162,8 +197,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [applyToken]);
 
   const value = useMemo<AuthContextValue>(
-    () => ({ ...state, login, logout, refresh }),
-    [state, login, logout, refresh],
+    () => ({ ...state, login, logout, refresh, signInAsDemo }),
+    [state, login, logout, refresh, signInAsDemo],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
