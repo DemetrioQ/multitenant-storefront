@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { listStores } from "@/lib/api";
 import { ApiError, type StoreSummary } from "@/lib/types";
+import { StoreCardCountdown } from "@/components/StoreCardCountdown";
 
 export const metadata: Metadata = {
   title: "SaaS API Portfolio · Multi-tenant Shopify-for-X",
@@ -38,7 +39,7 @@ export default async function LandingPage() {
       </section>
 
       <section>
-        <div className="flex items-baseline justify-between mb-6">
+        <div className="flex items-baseline justify-between mb-3">
           <h2 className="text-2xl font-semibold tracking-tight">Live stores</h2>
           {stores.length > 0 && (
             <span className="text-sm text-[var(--muted)]">
@@ -46,6 +47,10 @@ export default async function LandingPage() {
             </span>
           )}
         </div>
+        <p className="mb-6 text-sm text-[var(--muted)]">
+          Stores are demo tenants spawned by visitors browsing the dashboard. They reset on a
+          24-hour timer — feel free to click in and shop around. Nothing is real.
+        </p>
 
         {error ? (
           <div className="rounded-lg border border-dashed border-[var(--border)] p-8 text-sm text-[var(--muted)]">
@@ -54,7 +59,8 @@ export default async function LandingPage() {
           </div>
         ) : stores.length === 0 ? (
           <div className="rounded-lg border border-dashed border-[var(--border)] p-8 text-sm text-[var(--muted)]">
-            No live stores yet. Create one from the merchant dashboard to see it listed here.
+            No demo stores live right now. Visit the merchant dashboard to spawn one — it&apos;ll
+            show up here within a few seconds.
           </div>
         ) : (
           <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -64,11 +70,18 @@ export default async function LandingPage() {
                   href={store.storeUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="block rounded-lg border border-[var(--border)] p-5 hover:border-[var(--brand)] transition-colors h-full"
+                  className="group block rounded-lg border border-[var(--border)] p-5 hover:border-[var(--brand)] transition-colors h-full"
                 >
-                  <p className="text-xs uppercase tracking-wide text-[var(--muted)] font-mono">
-                    {store.slug}
-                  </p>
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="text-xs uppercase tracking-wide text-[var(--muted)] font-mono truncate">
+                      {store.slug}
+                    </p>
+                    {store.isDemo && store.demoExpiresAt && (
+                      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30 whitespace-nowrap">
+                        Demo · <StoreCardCountdown expiresAt={store.demoExpiresAt} />
+                      </span>
+                    )}
+                  </div>
                   <p className="mt-2 text-lg font-medium group-hover:underline">{store.name}</p>
                   <p className="mt-3 text-xs text-[var(--muted)] truncate">
                     Visit {store.storeUrl.replace(/^https?:\/\//, "")} →

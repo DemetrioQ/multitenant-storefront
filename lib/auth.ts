@@ -39,3 +39,12 @@ export function forgotPassword(email: string): Promise<void> {
 export function resetPassword(data: { token: string; newPassword: string }): Promise<void> {
   return apiFetch<void>("/auth/reset-password", { method: "POST", body: data });
 }
+
+export type DemoProvisionResponse = {
+  jwtToken: string;
+  demoExpiresAt: string;
+};
+
+export function demoProvision(): Promise<DemoProvisionResponse> {
+  return apiFetch<DemoProvisionResponse>("/auth/demo/provision", { method: "POST" });
+}

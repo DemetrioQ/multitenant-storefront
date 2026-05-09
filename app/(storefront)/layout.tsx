@@ -9,6 +9,7 @@ import { StoreProvider } from "@/contexts/StoreContext";
 import { Header } from "@/components/Header";
 import { LandingHeader } from "@/components/LandingHeader";
 import { LandingFooter } from "@/components/LandingFooter";
+import { DemoBanner } from "@/components/DemoBanner";
 import { StoreUnavailableScreen } from "@/components/StoreUnavailableScreen";
 import { ToastProvider } from "@/components/ui";
 import { safeHttpHref } from "@/lib/format";
@@ -115,6 +116,7 @@ export default async function StorefrontLayout({ children }: { children: React.R
         <AuthProvider>
           <CartProvider>
             <ToastProvider>
+              <DemoBanner />
               <Header storeName={storeName} />
               <main className="flex-1">{children}</main>
               <footer className="border-t border-[var(--border)] mt-16">

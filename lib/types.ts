@@ -77,6 +77,8 @@ export type CustomerClaims = {
   sub_type: "customer" | "merchant";
   email: string;
   exp: number;
+  demo?: "true";
+  demo_expires_at?: string;
 };
 
 export type CartLineItem = {
@@ -181,6 +183,8 @@ export type StoreSummary = {
   name: string;
   slug: string;
   storeUrl: string;
+  isDemo: boolean;
+  demoExpiresAt: string | null;
 };
 
 export type StoreSummaryList = {

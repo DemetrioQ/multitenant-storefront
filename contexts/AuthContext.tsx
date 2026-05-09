@@ -131,6 +131,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           applyToken(res.jwtToken);
           scheduleRefresh(res.jwtToken);
         }
+        return;
+      } catch {
+        // No valid refresh cookie — fall through to auto-provisioning a demo
+        // customer so visitors can shop without registering.
+      }
+      if (cancelled) return;
+      try {
+        const res = await authApi.demoProvision();
+        if (!cancelled) {
+          applyToken(res.jwtToken);
+          scheduleRefresh(res.jwtToken);
+        }
       } catch {
         if (!cancelled) applyToken(null);
       }
